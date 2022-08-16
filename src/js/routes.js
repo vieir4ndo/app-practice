@@ -10,6 +10,13 @@ import ChatPage from "../pages/chat.f7.html";
 import NewsPage from "../pages/news.f7.html";
 import ProfilePage from "../pages/profile.f7.html";
 
+import CuIdCardPage from "../pages/cu-id-card.f7.html";
+import CuIdCardRequestPage from "../pages/cu-id-card-request.f7.html";
+import CuIdCardDetailsPage from "../pages/cu-id-card-details.f7.html";
+import CuHomePage from "../pages/cu-home.f7.html";
+import CuRoomSchedulingPage from "../pages/cu-room-scheduling.f7.html";
+
+
 import IdeasPage from "../pages/ideas.f7.html";
 import ServicesPage from "../pages/services.f7.html";
 import ServiceRequestPage from "../pages/service-request.f7.html";
@@ -67,6 +74,7 @@ const homePageRoute = function () {
       id: "services",
       component: ServicesPage,
     });
+
   if (IsEnabled.newsPage)
     tabs.push({
       path: "/news/",
@@ -74,18 +82,18 @@ const homePageRoute = function () {
       component: NewsPage,
     });
 
-  if (IsEnabled.envPage)
+  if (IsEnabled.cuIdCardPage)
     tabs.push({
-      path: "/env/",
-      id: "env",
-      component: EnvPage,
+      path: "/cu/id-card/",
+      id: "cu-id-card",
+      component: CuIdCardPage,
     });
 
-  if (IsEnabled.scanPage)
+  if (IsEnabled.cuHomePage)
     tabs.push({
-      path: "/scan/",
-      id: "scan",
-      component: ScanPage,
+      path: "/cu/home/",
+      id: "cu-home",
+      component: CuHomePage,
     });
 
   if (IsEnabled.auraPage)
@@ -135,6 +143,39 @@ const serviceRequestPageRoute = function () {
   };
 
   if (IsEnabled.servicesPage) return route;
+};
+
+const cuPagesRoutes = function () {
+  let route = {
+    path: "/cu/"
+  };
+
+  let modules = [];
+
+  if (IsEnabled.cuIdCardPage) {
+    modules.push({
+      path: "/id-card/",
+      routes: [{
+        path: "/request/",
+        component: CuIdCardRequestPage,
+        beforeEnter: authenticated,
+      }, {
+        path: "/details/",
+        component: CuIdCardDetailsPage,
+        beforeEnter: authenticated,
+      }]
+    });
+  }
+
+  if (IsEnabled.cuRoomSchedulingPage) {
+    modules.push({
+      path: "/room-scheduling/",
+      component: CuRoomSchedulingPage
+    });
+  }
+
+  route.routes = modules;
+  if (IsEnabled.cuPages) return route;
 };
 
 const rightPanelRoute = function () {
@@ -199,6 +240,26 @@ const aboutPageRoute = function () {
   if (IsEnabled.aboutPage) return route;
 };
 
+const scanPageRoute = function () {
+  let route = {
+    path: "/scan/",
+    component: ScanPage,
+    beforeEnter: authenticated,
+  };
+
+  if (IsEnabled.scanPage) return route;
+};
+
+const envPageRoute = function () {
+  let route = {
+    path: "/env/",
+    component: EnvPage,
+    beforeEnter: authenticated,
+  };
+
+  if (IsEnabled.envPage) return route;
+};
+
 const taskCompletedPageRoute = function () {
   let route = {
     path: "/task-completed/",
@@ -230,9 +291,7 @@ const initialPageRoute = function () {
 const loginPageRoute = function () {
   return {
     path: "/login/",
-    loginScreen: {
-      component: LoginPage,
-    },
+    component: LoginPage,
     beforeEnter: unauthenticated,
   };
 };
@@ -250,12 +309,15 @@ var routes = [
   chatPageRoute(),
   serviceRequestPageRoute(),
   serviceDetailsPageRoute(),
+  cuPagesRoutes(),
   rightPanelRoute(),
   ideasPageRoute(),
   coinPageRoute(),
   notificationsPageRoute(),
   settingsPageRoute(),
   aboutPageRoute(),
+  scanPageRoute(),
+  envPageRoute(),
   taskCompletedPageRoute(),
   recordAudioPageRoute(),
   // Unauthenticated routes
