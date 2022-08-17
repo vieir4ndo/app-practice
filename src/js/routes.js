@@ -14,7 +14,9 @@ import CuIdCardPage from "../pages/cu-id-card.f7.html";
 import CuIdCardRequestPage from "../pages/cu-id-card-request.f7.html";
 import CuIdCardDetailsPage from "../pages/cu-id-card-details.f7.html";
 import CuHomePage from "../pages/cu-home.f7.html";
-import CuRoomSchedulingPage from "../pages/cu-room-scheduling.f7.html";
+import CuRoomSchedulingLocatorPage from "../pages/cu-room-scheduling-locator.f7.html";
+import CuRoomSchedulingResponsiblePage from "../pages/cu-room-scheduling-responsible.f7.html";
+import CuRoomSchedulingSchedulePage from "../pages/cu-room-scheduling-schedule.f7.html";
 import CuUniversityRestaurantPage from "../pages/cu-university-restaurant.f7.html";
 
 import IdeasPage from "../pages/ideas.f7.html";
@@ -170,7 +172,16 @@ const cuPagesRoutes = function () {
   if (IsEnabled.cuRoomSchedulingPage) {
     modules.push({
       path: "/room-scheduling/",
-      component: CuRoomSchedulingPage
+      routes : [{
+        path: "/schedule/",
+        component: CuRoomSchedulingSchedulePage,
+      }, {
+        path: "/responsible/",
+        component: CuRoomSchedulingResponsiblePage,
+      }, {
+        path: "/locator/",
+        component: CuRoomSchedulingLocatorPage,
+      }]
     });
   }
 
