@@ -1,7 +1,10 @@
+import xmlParser from "fast-xml-parser";
+
 export class Api {
     constructor(app) {
         this.app = app;
         this.app.api = this;
+        this.app.cu_url = this.app.storage.cuApiURL;
 
         const settings = this.app.storage.getSettings();
         if (settings.devMode && settings.testApi) {
@@ -310,4 +313,28 @@ export class Api {
             });
         });
     };
+
+    async getIdCardStatus () {
+        let app = this.app;
+
+        return await app.request.promise.get(app.cu_url + 'user/operation/pedro.dutra').then((res) => {
+            return res;
+        });
+    }
+
+    async requestIdCard(data, photo) {
+        let app = this.app;
+
+        return await app.request.promise.post(
+            app.cu_url + 'user/iduffs',
+            {
+                "uid": data['user-uid'],
+                "password": data['user-password'],
+                "profile_photo": photo,
+                "enrollment_id": data['user-enrollment_id'],
+                "birth_date": data['user-birth_date']
+            }).then((res) => {
+            return res;
+        });
+    }
 };

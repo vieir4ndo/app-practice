@@ -1,8 +1,16 @@
 <template>
 	<div data-name="cu-id-card">
+		<!-- Load Page -->
+        <div data-idcardcontent="id-card-load" class="block padding margin">
+            <div class="display-flex justify-content-center padding margin">
+                <lottie-player class="margin padding" src="static/lottie/cu-id-card-load.json" background="rgba(0, 0, 0, 0)" loop autoplay>
+                </lottie-player>
+            </div>
+        </div>
+
 		<!-- Request Page -->
-		<div id="id-card-request">
-			<div class="block display-none">
+		<div data-idcardcontent="id-card-request" class="display-none">
+			<div class="block">
 				<div class="block display-flex justify-content-center">
 					<lottie-player src="static/lottie/cu-id-card-request.json" background="rgba(0, 0, 0, 0)" loop autoplay>
 					</lottie-player>
@@ -11,7 +19,7 @@
 				<div class="block-title block-title-medium elegant">Carteirinha Digital</div>
 				<div class="block">
 					<p class="">A carteirinha de sempre, agora digital.</p>
-					<a href="/id-card/id-card-request/" class="button button-raised button-fill display-flex">
+					<a href="/cu/id-card/request/" class="button button-raised button-fill display-flex">
 						<span class="flex-grow">Solicitar Carteirinha</span>
 						<i class="f7-icons margin-left">chevron_right_circle</i>
 					</a>
@@ -20,22 +28,22 @@
 		</div>
 
 		<!-- Display Page -->
-		<div id="id-card-display" class="block">
+		<div id="id-card-display" data-idcardcontent="id-card-display" class="block display-none">
 			<div class="id-card-wrapper" id="id-card-front">
-				<img id="template" src="../static/images/cu/id-card/id-card-front.png" alt="">
+				<img class="template" src="../static/images/cu/id-card/id-card-front.png" alt="">
 				<img id="user-photo-display" src="../static/images/cu/id-card/user-photo.jpg" alt="">
 				<span id="user-name-display">Pedro Zawadzki Dutra</span>
 				<span id="user-uid-display">Matrícula: 2022000000</span>
 				<span id="user-course-display">Ciência da Computação</span>
 			</div>
 			<div class="id-card-wrapper" id="id-card-back">
-				<img id="template" src="../static/images/cu/id-card/id-card-back.png" alt="">
+				<img class="template" src="../static/images/cu/id-card/id-card-back.png" alt="">
 				<span id="user-birthday-display">01/01/2000</span>
 			</div>
 		</div>
 
 		<!-- Floating Action Button -->
-		<div class="fab fab-right-bottom color-orange">
+		<div class="fab fab-right-bottom color-orange display-none">
 			<a href="#">
 				<i class="icon f7-icons if-not-md">plus</i>
 				<i class="icon f7-icons if-not-md">xmark</i>
@@ -73,7 +81,7 @@
 		margin-bottom: 20px;
 	}
 
-	#template {
+	.template {
 		width: 100%;
 	}
 
@@ -121,13 +129,30 @@
 	export default {
 		on: {
 			tabInit: function () {
+				let app = this.$app
+
 				this.calcFontSize();
+
+				app.api.getIdCardStatus().then(data => {
+					if (data.status == 204) {
+						this.toggleContent('id-card-request')
+					}
+				}).catch(() => {
+					app.dialog.alert("Ocorreu um erro inesperado, tente novamente!")
+				})
 			}
 		},
 		methods: {
 			calcFontSize: function () {
-				let cardView = document.getElementsByClassName('id-card-wrapper')[0];
-				document.getElementById('id-card-display').style.fontSize = (cardView.clientWidth / 31) + "px";
+				let cardView = document.getElementsByClassName('id-card-wrapper')[0]
+				document.getElementById('id-card-display').style.fontSize = (cardView.clientWidth / 31) + "px"
+			},
+			toggleContent: function (content) {
+				let app = this.$app
+				app.$$('div[data-idcardcontent]').each(function() {
+					app.$$(this).addClass('display-none');
+				})
+				app.$$('div[data-idcardcontent="' + content + '"]').removeClass('display-none')
 			}
 		}
 	}

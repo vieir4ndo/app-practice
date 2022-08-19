@@ -16,7 +16,7 @@
 		</div>
 
 		<div class="page-content">
-			<form>
+			<form id="cu-id-card-request">
 				<!-- User-Data Step -->
 				<div id="step-data" class="card step">
 					<div class="block display-flex justify-content-center">
@@ -81,7 +81,7 @@
 							class="button button-raised button-fill display-flex margin-bottom color-deeporange">
 							<i class="f7-icons margin-right">camera_fill</i>
 							<span id="btn-photo-text"> Selecione sua foto</span>
-							<input required validate class="display-none" type="file" id="user-photo"
+							<input required validate class="display-none" type="file" id="user-photo" name="user-photo"
 								accept="image/*;capture=camera" @change="changePhotoDisplay()">
 						</label>
 					</div>
@@ -139,8 +139,10 @@
 					</div>
 				</div>
 				<div class="block">
-					<input id="id-card-submit" type="submit"
-						class="button button-raised button-fill margin-vertical display-none" value="Solicitar">
+					<button type="button" id="id-card-submit" class="button button-raised button-fill margin-vertical
+						display-none" @click="submitIdCardRequest">
+						Solicitar
+					</button>
 				</div>
 			</form>
 		</div>
@@ -208,6 +210,24 @@
 					app.$$('#lootie-photo-display').removeClass('display-none');
 					app.$$('#btn-photo-text').html('Selecione sua foto');
 				}
+			},
+			submitIdCardRequest: function () {
+				let app = this.$app;
+				let formData = app.form.convertToData('#cu-id-card-request');
+				let photo = '';
+
+				let photoInput = document.querySelector('#user-photo')['files'][0];
+				let reader = new FileReader();
+				reader.onload = async function () {
+					photo = reader.result.replace("data:", "").replace(/^.+,/, "");
+
+					app.api.requestIdCard(formData, photo).then(data => {
+						app.views.main.router.navigate('/cu/id-card/');
+					}).catch(() => {
+						app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+					})
+				}
+				reader.readAsDataURL(photoInput);
 			}
 		}
 	}
