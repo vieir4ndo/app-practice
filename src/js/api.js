@@ -11,7 +11,7 @@ export class Api {
             this.url = this.app.storage.testApiURL;
         } else {
             this.url = this.app.storage.prodApiURL;
-        } 
+        }
     }
 
     async requestLogin(username, password) {
@@ -132,7 +132,7 @@ export class Api {
                 services: [],
                 meta: data.meta
             };
-            
+
             for (let i = 0; i < services.length; i++) {
                 servicesToSave[i] = {
                     id: services[i].id,
@@ -141,12 +141,12 @@ export class Api {
                     description: services[i].description,
                     created_at: services[i].created_at
                 };
-                
+
                 toReturn.services[i] = services[i];
             }
 
             const settings = app.storage.getSettings();
-            
+
             if (settings.offlineStorage) {
                 app.storage.setRequestedServices(servicesToSave);
             }
@@ -173,17 +173,17 @@ export class Api {
                     return;
                 }
                 let service = JSON.parse(res.data);
-                
+
                 service.comments.forEach(comment => {
                     comment.user_name = comment.user_id != service.user_id ? "Equipe PRACTICE" : userData.name;
                     comment.created_at = new Date(comment.created_at).toLocaleDateString("pt-br", {timeZone: 'UTC'});
                 });
-                
+
                 service.requested_due_date = new Date(service.requested_due_date).toLocaleDateString("pt-br", {timeZone: 'UTC'});
                 service.user = userData;
 
                 const settings = app.storage.getSettings();
-                
+
                 if (settings.offlineStorage && !service.error) {
                     app.storage.setServiceDetails(service);
                 }
@@ -296,7 +296,7 @@ export class Api {
                 }).catch(() => {
                     app.dialog.alert("Não foi possível ativar as notificações para este dispositivo, tente novamente mais tarde!");
                 });
-            });   
+            });
         });
     };
 
@@ -389,19 +389,41 @@ export class Api {
         });
     };
 
-    async requestIdCard(data, photo) {
+    async requestIdCard(data, photo=null) {
         let app = this.app;
+        let credentials = await app.storage.getUserCredentials();
+        let update = !data.hasOwnProperty('user-uid');
 
-        return await app.request.promise.post(
-            app.cu_url + 'user/iduffs',
-            {
-                "uid": data['user-uid'],
-                "password": data['user-password'],
-                "profile_photo": photo,
-                "enrollment_id": data['user-enrollment_id'],
-                "birth_date": data['user-birth_date']
-            }).then((res) => {
-            return res;
-        });
+        let args = {
+            enrollment_id: data['user-enrollment_id'],
+            birth_date: data['user-birth_date']
+        }
+
+        if (photo != null) {
+            args.profile_photo = photo;
+        }
+
+        if (!update) {
+            args.uid = data['user-uid'];
+            args.password = data['user-password'];
+        }
+
+        let post = {
+            type: update ? 'PATCH' : 'POST',
+            url: app.cu_url + 'user/iduffs',
+            data: args,
+            contentType: "application/json; charset=utf-8",
+            crossDomain: true
+        };
+
+        if (credentials.hasOwnProperty('cu_auth')) {
+            console.log(post)
+            post.beforeSend = function (xhr) {
+                xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+                xhr.setRequestHeader('Authorization', "Bearer " + credentials.cu_auth);
+            }
+        }
+
+        return await app.request.promise(post).then(res => res);
     }
 };

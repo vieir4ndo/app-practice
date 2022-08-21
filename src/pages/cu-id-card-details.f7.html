@@ -16,27 +16,25 @@
 		</div>
 
 		<div class="page-content">
-			<form>
+			{{#if idCard}}
+			<form id="cu-id-card-update">
 				<div class="card">
 					<div class="block display-flex justify-content-center padding">
-						<img width="150px" src="../static/images/cu/id-card/user-photo.jpg" alt="">
+						<label for="update-user-photo">
+							<img id="update-user-photo-preview" width="150px"
+									 src="data:image/png;base64, {{idCard.profile_photo}}">
+							<input required class="display-none" type="file" id="update-user-photo" name="user-photo"
+										 accept="image/*;capture=camera" @change="changePhotoDisplay()">
+						</label>
 					</div>
 					<div class="card-content card-content-padding">
 						<div class="list no-hairlines">
 							<ul>
 								<li class="item-content item-input item-input-outline">
 									<div class="item-inner">
-										<div class="item-title item-floating-label">idUffs</div>
-										<div class="item-input-wrap">
-											<input type="text" name="user-uid" required validate disabled />
-										</div>
-									</div>
-								</li>
-								<li class="item-content item-input item-input-outline">
-									<div class="item-inner">
 										<div class="item-title item-floating-label">Matrícula</div>
 										<div class="item-input-wrap">
-											<input type="text" name="user-enrollment_id" required validate />
+											<input type="text" name="user-enrollment_id" required/>
 											<span class="input-clear-button"></span>
 										</div>
 									</div>
@@ -45,7 +43,7 @@
 									<div class="item-inner">
 										<div class="item-title item-floating-label">Data de nascimento</div>
 										<div class="item-input-wrap">
-											<input type="date" name="user-birth_date" required validate />
+											<input type="date" name="user-birth_date" required/>
 										</div>
 									</div>
 								</li>
@@ -54,25 +52,91 @@
 					</div>
 				</div>
 				<div class="block">
-					<input id="id-card-submit" type="submit" class="button button-raised button-fill margin-vertical"
-						value="Solicitar Edição">
+					<button type="button" id="update-id-card-submit"
+									class="button button-raised button-fill margin-vertical"
+									@click="submitIdCardUpdate">
+						Solicitar Edição
+					</button>
 				</div>
 			</form>
+			{{/if}}
 		</div>
 	</div>
 </template>
 <script>
-	export default {
-		on: {
-			pageInit: function () {
-				let self = this;
-				let app = self.$app;
-				let userCredentials = app.storage.getUserCredentials();
+    export default {
+        data: function () {
+            return {
+                idCard: null,
+            }
+        },
+        on: {
+            pageInit: function () {
+                let self = this;
+                let app = self.$app;
 
-				app.$$("input[name*='user-uid']").val(userCredentials.user.uid);
-			}
-		},
-		methods: {
-		}
-	}
+                this.loadData();
+            },
+        },
+        methods: {
+            loadData: function () {
+                let self = this;
+                let app = this.$app;
+
+                app.storage.getCuData().then(idCard => {
+                    app.$$('#user-update-enrollment_id').val(idCard.enrollment_id);
+                    setTimeout(() => {
+                        self.$setState({
+                            idCard: idCard,
+                        });
+                        setTimeout(() => {
+                            let date = idCard.birth_date.split('/');
+                            app.form.fillFromData('#cu-id-card-update', {
+                                'user-birth_date': date[2] + '-' + date[1] + '-' + date[0],
+                                'user-enrollment_id': idCard.enrollment_id
+                            });
+                        }, 200);
+                    }, 1500);
+                }).catch(e => {
+                    app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+                });
+            },
+            changePhotoDisplay: function () {
+                let app = this.$app;
+                let reader = new FileReader();
+                let file = document.getElementById('update-user-photo').files[0];
+
+                if (file) {
+                    reader.onloadend = function () {
+                        document.getElementById('update-user-photo-preview').src = reader.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            },
+            submitIdCardUpdate: function () {
+                let app = this.$app;
+                let formData = app.form.convertToData('#cu-id-card-update');
+                let photoInput = document.querySelector('#update-user-photo')['files'][0];
+                let reader = new FileReader();
+
+                reader.onload = async function () {
+                    let photo = reader.result.replace("data:", "").replace(/^.+,/, "");
+                    app.api.requestIdCard(formData, photo).then(data => {
+                        app.views.main.router.navigate('/cu/id-card/');
+                    }).catch(() => {
+                        app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+                    })
+                }
+                if (photoInput != null) {
+                    reader.readAsDataURL(photoInput)
+                } else {
+                    app.api.requestIdCard(formData).then(data => {
+                        app.views.main.router.navigate('/cu/id-card/');
+                    }).catch(() => {
+                        app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+                    })
+                }
+            }
+        }
+    }
 </script>
