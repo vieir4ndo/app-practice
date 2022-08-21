@@ -26,6 +26,10 @@ export class Api {
 			let data = JSON.parse(res.data);
 			app.storage.setUserData(data.user);
             if (data.passport) {
+                let cuAuth = await this.cuAuth(username, password);
+                if (cuAuth) {
+                    data.cu_auth = cuAuth;
+                }
                 app.storage.setUserCredentials(data);
                 app.request.setup({
                     headers: {
@@ -314,13 +318,76 @@ export class Api {
         });
     };
 
-    async getIdCardStatus () {
+    // CU Methods
+    async cuAuth(uid, password) {
         let app = this.app;
 
-        return await app.request.promise.get(app.cu_url + 'user/operation/pedro.dutra').then((res) => {
-            return res;
-        });
+        return await app.request.promise.post(app.cu_url + 'login', {
+            "uid": uid,
+            "password": password,
+        }).then(async (res) => {
+            let data = JSON.parse(res.data);
+            return data.success ? data.data.token : false;
+        }).catch((err) => {
+            return false;
+        })
     }
+
+    async getCuStatus() {
+        let app = this.app;
+        let userData = await app.storage.getUserData()
+
+        return await app.request.promise
+            .get(app.cu_url + 'user/operation/' + userData['username'])
+            .then(
+                async res => {
+                    if (res.status == 204) {
+                        return { 'noUser' : true }
+                    }
+
+                    res = JSON.parse(res.data);
+                    let cuData = null;
+
+                    if (res.data == 'User has no operation in progress.') {
+                        cuData = await app.storage.getCuData();
+                    }
+
+                    return {
+                        'creationError': res.data.status == "Falha",
+                        'creatingStatus': res.data.status,
+                        'message': res.data.message,
+                        'cuData': cuData
+                    };
+                }
+            );
+    }
+
+    async requestCuData() {
+        let self = this;
+        let app = self.app;
+        let credentials = app.storage.getUserCredentials()
+
+        return await app.request.promise({
+            type: 'GET',
+            url: app.cu_url + 'user',
+            contentType: "application/json; charset=utf-8",
+            crossDomain: true,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+                xhr.setRequestHeader('Authorization', "Bearer " +  credentials.cu_auth);
+            }
+        }).then((res) => {
+            const cuData = JSON.parse(res.data);
+            if (cuData.success) {
+                let birth_date = cuData.data.birth_date.split('-');
+                cuData.data.birth_date = new Date(birth_date[0], birth_date[1]-1, birth_date[2]);
+                cuData.data.birth_date = cuData.data.birth_date.toLocaleDateString('pt-br');
+
+                app.storage.setCuData(cuData.data);
+                return cuData.data;
+            }
+        });
+    };
 
     async requestIdCard(data, photo) {
         let app = this.app;

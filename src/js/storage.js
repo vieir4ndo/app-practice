@@ -147,6 +147,7 @@ export class Storage {
 	clearUserCredentials(){
 		localStorage.removeItem("userCredentials");
 		localStorage.removeItem("userData");
+		localStorage.removeItem("cuData");
 	};
 
 	// User data methods
@@ -249,5 +250,22 @@ export class Storage {
 
 	setCountdownLogin(value) {
 		localStorage.setItem("getCountdownLogin", value);
+	};
+
+	// CU Data Methods
+	async getCuData(){
+		let app = this.app;
+		let cuData = localStorage["cuData"];
+
+		if (!cuData) {
+			return await app.api.requestCuData();
+		} else {
+			app.api.requestCuData();
+			return JSON.parse(cuData);
+		}
+	};
+
+	setCuData(cuData){
+		localStorage["cuData"] = JSON.stringify(cuData);
 	};
 };

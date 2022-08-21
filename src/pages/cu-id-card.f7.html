@@ -1,159 +1,216 @@
 <template>
-	<div data-name="cu-id-card">
-		<!-- Load Page -->
-        <div data-idcardcontent="id-card-load" class="block padding margin">
+    <div data-name="cu-id-card" id="test" class="ptr-content" data-ptr-distance="55" data-ptr-mousewheel="true">
+        <div class="ptr-preloader">
+            <div class="preloader"></div>
+            <div class="ptr-arrow"></div>
+        </div>
+
+        {{#if idCard}}
+        {{#if idCard.cuData}}
+        <!-- Display Page -->
+        <div id="id-card-display" class="block">
+            <div class="id-card-wrapper" id="id-card-front">
+                <img class="template" src="../static/images/cu/id-card/id-card-front.png" alt="">
+                <img id="user-photo-display" src="data:image/png;base64, {{idCard.cuData.profile_photo}}" alt="">
+                <span id="user-name-display">{{idCard.cuData.name}}</span>
+                <span id="user-uid-display">{{idCard.cuData.enrollment_id}}</span>
+                <span id="user-course-display">{{idCard.cuData.course}}</span>
+            </div>
+            <div class="id-card-wrapper" id="id-card-back">
+                <img class="template" src="../static/images/cu/id-card/id-card-back.png" alt="">
+                <img id="user-barcode-display" src="{{idCard.cuData.bar_code}}" alt="">
+                <span id="user-birthday-display">{{idCard.cuData.birth_date}}</span>
+            </div>
+        </div>
+        {{else}}
+        <!-- Request Page -->
+        <div class="block">
+            <div class="block display-flex justify-content-center">
+                <lottie-player src="static/lottie/cu-id-card-request.json" background="rgba(0, 0, 0, 0)" loop autoplay>
+                </lottie-player>
+            </div>
+
+            <div class="block-title block-title-medium elegant">Carteirinha Digital</div>
+            {{#js_if 'this.idCard.creationError || this.idCard.noUser'}}
+            <div class="block">
+                <p class="">A carteirinha de sempre, agora digital.</p>
+                <a href="/cu/id-card/request/" class="button button-raised button-fill display-flex">
+                    <span class="flex-grow">Solicitar Carteirinha</span>
+                    <i class="f7-icons margin-left">chevron_right_circle</i>
+                </a>
+            </div>
+            {{/js_if}}
+            {{#if idCard.creationError}}
+            <div class="card bg-color-orange">
+                <div class="card-content card-content-padding">
+                    <div>Ocorreu um erro ao criar a sua carteirinha. 😥</div>
+                    <div>Tente novamente!</div>
+                    <div class="small margin-top">
+                        {{ idCard.message.split(':')[1] }}
+                    </div>
+                </div>
+            </div>
+            {{else}}
+            {{#if idCard.creatingStatus}}
+            <div class="card bg-color-lightblue">
+                <div class="card-content card-content-padding">
+                    <div>Estamos criando sua carteirinha! 😁</div>
+                    <div>Aguarde alguns instantes.</div>
+                    <div class="small margin-top">
+                        Status: {{ idCard.creatingStatus }}
+                    </div>
+                </div>
+            </div>
+            {{/if}}
+            {{/if}}
+        </div>
+        {{/if}}
+        {{/if}}
+
+        <!-- Load Page -->
+        <div id="id-card-load" class="block padding margin">
             <div class="display-flex justify-content-center padding margin">
-                <lottie-player class="margin padding" src="static/lottie/cu-id-card-load.json" background="rgba(0, 0, 0, 0)" loop autoplay>
+                <lottie-player class="margin padding" src="static/lottie/cu-id-card-load.json"
+                               background="rgba(0, 0, 0, 0)" loop autoplay>
                 </lottie-player>
             </div>
         </div>
 
-		<!-- Request Page -->
-		<div data-idcardcontent="id-card-request" class="display-none">
-			<div class="block">
-				<div class="block display-flex justify-content-center">
-					<lottie-player src="static/lottie/cu-id-card-request.json" background="rgba(0, 0, 0, 0)" loop autoplay>
-					</lottie-player>
-				</div>
+        {{#if idCard}}
+        {{#if idCard.cuData}}
+        <!-- Floating Action Button -->
+        <div class="fab fab-right-bottom color-orange">
+            <a href="#">
+                <i class="icon f7-icons">plus</i>
+                <i class="icon f7-icons">xmark</i>
+            </a>
+            <div class="fab-buttons fab-buttons-top">
+                <a class="fab-label-button" href="/cu/id-card/details/">
+                    <span><i class="icon f7-icons">square_pencil</i></span><span class="fab-label">Editar</span>
+                </a>
+            </div>
+        </div>
+        {{/if}}
+        {{/if}}
 
-				<div class="block-title block-title-medium elegant">Carteirinha Digital</div>
-				<div class="block">
-					<p class="">A carteirinha de sempre, agora digital.</p>
-					<a href="/cu/id-card/request/" class="button button-raised button-fill display-flex">
-						<span class="flex-grow">Solicitar Carteirinha</span>
-						<i class="f7-icons margin-left">chevron_right_circle</i>
-					</a>
-				</div>
-			</div>
-		</div>
-
-		<!-- Display Page -->
-		<div id="id-card-display" data-idcardcontent="id-card-display" class="block display-none">
-			<div class="id-card-wrapper" id="id-card-front">
-				<img class="template" src="../static/images/cu/id-card/id-card-front.png" alt="">
-				<img id="user-photo-display" src="../static/images/cu/id-card/user-photo.jpg" alt="">
-				<span id="user-name-display">Pedro Zawadzki Dutra</span>
-				<span id="user-uid-display">Matrícula: 2022000000</span>
-				<span id="user-course-display">Ciência da Computação</span>
-			</div>
-			<div class="id-card-wrapper" id="id-card-back">
-				<img class="template" src="../static/images/cu/id-card/id-card-back.png" alt="">
-				<span id="user-birthday-display">01/01/2000</span>
-			</div>
-		</div>
-
-		<!-- Floating Action Button -->
-		<div class="fab fab-right-bottom color-orange display-none">
-			<a href="#">
-				<i class="icon f7-icons if-not-md">plus</i>
-				<i class="icon f7-icons if-not-md">xmark</i>
-				<i class="icon material-icons md-only">add</i>
-				<i class="icon material-icons md-only">close</i>
-			</a>
-			<div class="fab-buttons fab-buttons-top">
-				<a class="fab-label-button" href="/cu/id-card/details/">
-					<span><i class="icon f7-icons">square_pencil</i></span><span class="fab-label">Editar</span>
-				</a>
-				<a class="fab-label-button" href="/cu/id-card/request/">
-					<span><i class="icon f7-icons">creditcard</i></span><span class="fab-label">Solicitar</span>
-				</a>
-			</div>
-		</div>
-	</div>
+    </div>
 </template>
+
 <style>
-	@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=swap');
 
-	@font-face {
-		font-family: sans-serif;
-		src: url(../fonts/OpenSans-VariableFon.ttf);
-	}
+    @font-face {
+        font-family: sans-serif;
+        src: url(../fonts/OpenSans-VariableFon.ttf);
+    }
 
-	.id-card-wrapper {
-		font-family: sans-serif;
-		font-weight: 700;
-		color: white;
-		overflow: hidden;
-		border-radius: 15px;
-		box-shadow: 5px 5px 10px #16161666;
-		position: relative;
-		line-height: 0px;
-		margin-bottom: 20px;
-	}
+    .id-card-wrapper {
+        font-family: sans-serif;
+        font-weight: 700;
+        color: white;
+        overflow: hidden;
+        border-radius: 15px;
+        box-shadow: 5px 5px 10px #16161666;
+        position: relative;
+        line-height: 0px;
+        margin-bottom: 20px;
+    }
 
-	.template {
-		width: 100%;
-	}
+    .template {
+        width: 100%;
+    }
 
-	#user-photo-display {
-		position: absolute;
-		left: 9%;
-		top: 12%;
-		width: 30%;
-	}
+    #user-photo-display {
+        position: absolute;
+        left: 9%;
+        top: 12%;
+        width: 30%;
+    }
 
-	#user-name-display {
-		position: absolute;
-		text-transform: uppercase;
-		font-size: 117%;
-		top: 41%;
-		left: 44%;
-	}
+    #user-barcode-display {
+        position: absolute;
+        left: 9.75%;
+        top: 12%;
+        width: 63%;
+    }
 
-	#user-course-display {
-		position: absolute;
-		text-transform: uppercase;
-		font-size: 105%;
-		top: 66%;
-		left: 44%;
-	}
+    #user-name-display {
+        position: absolute;
+        text-transform: uppercase;
+        font-size: 117%;
+        top: 41%;
+        left: 44%;
+    }
 
-	#user-uid-display {
-		position: absolute;
-		font-size: 110%;
-		top: 57%;
-		left: 44%;
-	}
+    #user-course-display {
+        position: absolute;
+        text-transform: uppercase;
+        font-size: 105%;
+        top: 66%;
+        left: 44%;
+    }
 
-	#user-birthday-display {
-		position: absolute;
-		font-weight: bold;
-		font-size: 110%;
-		color: #1A3335;
-		top: 43%;
-		left: 12.5%;
-	}
+    #user-uid-display {
+        position: absolute;
+        font-size: 110%;
+        top: 57%;
+        left: 44%;
+    }
+
+    #user-birthday-display {
+        position: absolute;
+        font-weight: bold;
+        font-size: 110%;
+        color: #1A3335;
+        top: 43%;
+        left: 12.5%;
+    }
 </style>
 
 <script>
-	export default {
-		on: {
-			tabInit: function () {
-				let app = this.$app
+    export default {
+        data: function () {
+            return {
+                idCard: null,
+            }
+        },
+        on: {
+            tabInit: function () {
+                let app = this.$app;
+                this.loadData();
 
-				this.calcFontSize();
+                // Pull to refresh
+                let refresh = app.$$('div[data-name="cu-id-card"');
+                refresh.on('ptr:refresh', function (e) {
+                    app.view.main.router.refreshPage();
+                    app.ptr.done();
+                })
+            },
+        },
+        methods: {
+            loadData: function () {
+                let self = this;
+                let app = this.$app;
 
-				app.api.getIdCardStatus().then(data => {
-					if (data.status == 204) {
-						this.toggleContent('id-card-request')
-					}
-				}).catch(() => {
-					app.dialog.alert("Ocorreu um erro inesperado, tente novamente!")
-				})
-			}
-		},
-		methods: {
-			calcFontSize: function () {
-				let cardView = document.getElementsByClassName('id-card-wrapper')[0]
-				document.getElementById('id-card-display').style.fontSize = (cardView.clientWidth / 31) + "px"
-			},
-			toggleContent: function (content) {
-				let app = this.$app
-				app.$$('div[data-idcardcontent]').each(function() {
-					app.$$(this).addClass('display-none');
-				})
-				app.$$('div[data-idcardcontent="' + content + '"]').removeClass('display-none')
-			}
-		}
-	}
+                app.api.getCuStatus().then(idCard => {
+                    setTimeout(() => {
+                        self.$setState({
+                            idCard: idCard,
+                        });
+                        app.$$('#id-card-load').hide();
+                        setTimeout(this.calcFontSize, 200);
+                    }, 1500);
+                }).catch(e => {
+                    app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+                });
+
+            },
+            calcFontSize: function () {
+                let cardView = document.getElementsByClassName('id-card-wrapper')[0];
+                if (cardView) {
+                    document.getElementById('id-card-display').style.fontSize = (cardView.clientWidth / 31) + "px";
+                }
+            }
+        }
+    }
 </script>
