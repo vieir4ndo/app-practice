@@ -356,7 +356,8 @@ export class Api {
                         'creationError': res.data.status == "Falha",
                         'creatingStatus': res.data.status,
                         'message': res.data.message,
-                        'cuData': cuData
+                        'cuData': cuData,
+                        'needLogout': cuData === false
                     };
                 }
             );
@@ -366,6 +367,10 @@ export class Api {
         let self = this;
         let app = self.app;
         let credentials = app.storage.getUserCredentials()
+
+        if (!credentials.hasOwnProperty('cu_auth')) {
+            return false;
+        }
 
         return await app.request.promise({
             type: 'GET',
@@ -379,7 +384,8 @@ export class Api {
         }).then((res) => {
             const cuData = JSON.parse(res.data);
             if (cuData.success) {
-                let birth_date = cuData.data.birth_date.split('-');
+                let birth_date = cuData.data.birth_date.split(' ')[0];
+                birth_date = birth_date.split('-');
                 cuData.data.birth_date = new Date(birth_date[0], birth_date[1]-1, birth_date[2]);
                 cuData.data.birth_date = cuData.data.birth_date.toLocaleDateString('pt-br');
 
@@ -411,13 +417,12 @@ export class Api {
         let post = {
             type: update ? 'PATCH' : 'POST',
             url: app.cu_url + 'user/iduffs',
-            data: args,
+            data: JSON.stringify(args),
             contentType: "application/json; charset=utf-8",
             crossDomain: true
         };
 
         if (credentials.hasOwnProperty('cu_auth')) {
-            console.log(post)
             post.beforeSend = function (xhr) {
                 xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
                 xhr.setRequestHeader('Authorization', "Bearer " + credentials.cu_auth);

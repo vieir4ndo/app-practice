@@ -62,6 +62,18 @@
                 </div>
             </div>
             {{/if}}
+            {{#if idCard.needLogout}}
+            <div class="card bg-color-lightblue">
+                <div class="card-content card-content-padding">
+                    <div class="margin-bottom">Sua carteirinha foi criada com sucesso! 😁</div>
+                    <div>Para utilizá-la, é necessário fazer login no aplicativo novamente.</div>
+                </div>
+            </div>
+            <a href="#" class="margin-half button button-raised button-fill display-flex" @click="logout()">
+                <i class="f7-icons margin-left">square_arrow_left</i>
+                <span class="flex-grow">Fazer Login</span>
+            </a>
+            {{/if}}
             {{/if}}
         </div>
         {{/if}}
@@ -193,13 +205,11 @@
                 let app = this.$app;
 
                 app.api.getCuStatus().then(idCard => {
-                    setTimeout(() => {
-                        self.$setState({
-                            idCard: idCard,
-                        });
-                        app.$$('#id-card-load').hide();
-                        setTimeout(this.calcFontSize, 200);
-                    }, 1500);
+                    self.$setState({
+                        idCard: idCard,
+                    });
+                    app.$$('#id-card-load').hide();
+                    setTimeout(this.calcFontSize, 200);
                 }).catch(e => {
                     app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
                 });
@@ -209,7 +219,28 @@
                 if (cardView) {
                     document.getElementById('id-card-display').style.fontSize = (cardView.clientWidth / 31) + "px";
                 }
-            }
+            },
+            logout: function () {
+                let self = this;
+                let app = self.$app;
+
+                app.dialog.confirm("Tem certeza que deseja sair?", function () {
+                    app.api
+                        .requestLogout()
+                        .then((res) => {
+                            if (res) {
+                                app.view.main.router.navigate("/");
+                            } else {
+                                app.dialog.alert(
+                                    "Não foi possível te desconectar, tente novamente!"
+                                );
+                            }
+                        })
+                        .catch(() => {
+                            app.dialog.alert("Ocorreu um erro em sua rede, tente novamente!");
+                        });
+                });
+            },
         }
     }
 </script>
