@@ -85,18 +85,16 @@
 
                 app.storage.getCuData().then(idCard => {
                     app.$$('#user-update-enrollment_id').val(idCard.enrollment_id);
+                    self.$setState({
+                        idCard: idCard,
+                    });
                     setTimeout(() => {
-                        self.$setState({
-                            idCard: idCard,
+                        let date = idCard.birth_date.split('/');
+                        app.form.fillFromData('#cu-id-card-update', {
+                            'user-birth_date': date[2] + '-' + date[1] + '-' + date[0],
+                            'user-enrollment_id': idCard.enrollment_id
                         });
-                        setTimeout(() => {
-                            let date = idCard.birth_date.split('/');
-                            app.form.fillFromData('#cu-id-card-update', {
-                                'user-birth_date': date[2] + '-' + date[1] + '-' + date[0],
-                                'user-enrollment_id': idCard.enrollment_id
-                            });
-                        }, 200);
-                    }, 1500);
+                    }, 200);
                 }).catch(e => {
                     app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
                 });

@@ -26,16 +26,22 @@
 				</div>
 			</div>
 			<div class="display-flex justify-content-space-around">
-				<span class="badge color-primary padding" @click="filterRoomSchedulingSchedule('since')">
-					<h2 class="cu-room-scheduling-schedule-filter display-flex">
-						<input type="text" readonly="readonly" value="01/08/2022 13h00 - 18h00"
-						data-roomschedulingfilter="since" />
+				<span class="badge color-primary padding" @click="filterRoomSchedule('begin')">
+					<h2 class="display-flex">
+						De: <input type="text" readonly="readonly" value="01/08/2022 14:30" data-roomschedulefilter="begin"/>
+					</h2>
+				</span>
+			</div>
+			<div class="display-flex justify-content-space-around margin-top">
+				<span class="badge color-primary padding" @click="filterRoomSchedule('end')">
+					<h2 class="display-flex">
+						Até: <input type="text" readonly="readonly" value="01/08/2022 14:30" data-roomschedulefilter="end"/>
 					</h2>
 				</span>
 			</div>
 			<div class="list simple-list">
 				<ul class="roomScheduling">
-					<li class="item-content" @click="detailsRoomSchedule3()">
+					<li class="item-content" @click="openRequestSchedule()">
 						<div class="item-inner">
 							<div class="item-title-row">
 								<div class="item-title">
@@ -46,7 +52,7 @@
 							<div class="item-text no-wrap">50 Alunos</div>
 						</div>
 					</li>
-					<li class="item-content" @click="detailsRoomSchedule3()">
+					<li class="item-content" @click="openRequestSchedule()">
 						<div class="item-inner">
 							<div class="item-title-row">
 								<div class="item-title">
@@ -79,7 +85,7 @@
 				</a>
 			</div>
 		</div>
-		
+
 		<div class="popup" id="cu-room-scheduling-schedule-popup">
 			<div class="block no-margin-bottom">
 				<a class="link popup-close" href="#">
@@ -91,109 +97,151 @@
 						<div>Responsável pela Sala: Dênio Duarte</div>
 						<hr class="margin-vertical">
 					</div>
-					
-					<div class="list no-hairlines no-margin">
-						<ul>
-							<li class="item-content item-input item-input-outline">
-								<div class="item-inner">
-									<div class="item-title item-floating-label">Data de Início</div>
-									<div class="item-input-wrap">
-										<input type="date" name="user-birth_date" required validate />
+					<form id="cu-room-schedule">
+						<div class="list no-hairlines no-margin">
+							<ul>
+								<li class="item-content item-input item-input-outline">
+									<div class="item-inner">
+										<div class="item-title item-floating-label">Data de Início</div>
+										<div class="item-input-wrap">
+											<input type="text" name="schedule-begin" disabled readonly/>
+										</div>
 									</div>
-								</div>
-							</li>
-							<li class="item-content item-input item-input-outline">
-								<div class="item-inner">
-									<div class="item-title item-floating-label">Data de Fim</div>
-									<div class="item-input-wrap">
-										<input type="date" name="user-birth_date" required validate />
+								</li>
+								<li class="item-content item-input item-input-outline">
+									<div class="item-inner">
+										<div class="item-title item-floating-label">Data de Fim</div>
+										<div class="item-input-wrap">
+											<input type="text" name="schedule-end" disabled readonly/>
+										</div>
 									</div>
-								</div>
-							</li>
-							<li class="item-content item-input item-input-outline">
-								<div class="item-inner">
-									<div class="item-title item-floating-label">CCR Vinculado</div>
-									<div class="item-input-wrap">
-										<select name="" id="">
-											<option value="">CC-GEX613</option>
-											<option value="">CC-GEX614</option>
-											<option value="">CC-GEX615</option>
-										</select>
+								</li>
+								{{#if CCR}}
+								<li class="item-content item-input item-input-outline">
+									<div class="item-inner">
+										<div class="item-title item-floating-label">CCR Vinculado</div>
+										<div class="item-input-wrap">
+											<select name="schedule-ccr">
+												<option value="0"></option>
+												{{#each CCR}}
+												<option value="{{this.id}}">{{this.name}}</option>
+												{{/each}}
+											</select>
+										</div>
 									</div>
-								</div>
-							</li>
-							<li class="item-content item-input item-input-outline">
-								<div class="item-inner">
-									<div class="item-title item-floating-label">Observações do Agendamento</div>
-									<div class="item-input-wrap">
-										<textarea name="" id="" cols="30" rows="10"></textarea>
+								</li>
+								{{/if}}
+								<li class="item-content item-input item-input-outline">
+									<div class="item-inner">
+										<div class="item-title item-floating-label">Observações do Agendamento</div>
+										<div class="item-input-wrap">
+											<textarea name="schedule-description" id="" cols="30" rows="10"></textarea>
+										</div>
 									</div>
-								</div>
-							</li>
-						</ul>
-					</div>
+								</li>
+							</ul>
+						</div>
+						<input type="hidden" name="schedule-room" value="1">
+					</form>
 
 					<div class="block">
-						<button class="button button-fill color-green margin-top">
+						<button class="button button-fill color-green margin-top" @click="requestRoomSchedule()">
 							Enviar Solicitação
 						</button>
 					</div>
 				</div>
 			</div>
 		</div>
+	</div>
 </template>
 <style>
-	.roomScheduling .item-content {
-		line-height: normal;
-		height: 100px;
-	}
+    .roomScheduling .item-content {
+        line-height: normal;
+        height: 100px;
+    }
 
-	/* Striped List */
-	.roomScheduling .item-content:nth-child(even) {
-		background-color: rgb(230, 230, 230);
-	}
+    /* Striped List */
+    .roomScheduling .item-content:nth-child(even) {
+        background-color: rgb(230, 230, 230);
+    }
 
-	.cu-room-scheduling-schedule-filter input {
-		width: 230px;
-		margin-left: 5px;
-		font-weight: bold;
-	}
+    input[data-roomschedulefilter] {
+        margin-left: 5px;
+        font-weight: bold;
+        width: 150px;
+    }
 </style>
 <script>
-	export default {
-		methods: {
-			filterRoomSchedulingSchedule(filter) {
-				let app = this.$app;
+    export default {
+        data: function () {
+            return {
+                CCR: null,
+            }
+        },
+        on: {
+            pageInit: function () {
+                this.loadCCRs();
+            },
+        },
+        methods: {
+            filterRoomSchedule(filter) {
+                let app = this.$app;
 
-				let calendar = app.calendar.create({
-					inputEl: 'input[data-roomschedulingfilter="' + filter + '"]',
-					dateFormat: 'dd/mm/yyyy HHhss',
-					closeOnSelect: true,
-					backdrop: true,
-					header: true,
-					timePicker: true,
-					headerPlaceholder: 'Data desejada:',
-					on: {
-						close: function () {
-							console.log('Procurar()')
-						},
-						closed: function () {
-							calendar.destroy();
-						}
-					}
-				});
-				calendar.open();
-			},
-			detailsRoomSchedule3() {
-				let app = this.$app;
+                let calendar = app.calendar.create({
+                    inputEl: 'input[data-roomschedulefilter="' + filter + '"]',
+                    dateFormat: 'dd/mm/yyyy HH::mm',
+                    closeOnSelect: true,
+                    backdrop: true,
+                    timePicker: true,
+                    on: {
+                        close: function () {
+                            console.log('Procurar()')
+                        },
+                        closed: function () {
+                            calendar.destroy();
+                        }
+                    }
+                });
 
-				let popup = app.popup.create({
-					swipeToClose: 'to-bottom',
-					closeByBackdropClick: true,
-					el: app.$$('#cu-room-scheduling-schedule-popup'),
-				})
-				popup.open();
-			}
-		}
-	}
+                calendar.open();
+            },
+            openRequestSchedule() {
+                let app = this.$app;
+
+                app.form.fillFromData('#cu-room-schedule', {
+                    'schedule-begin': app.$('input[data-roomschedulefilter="begin"]').val(),
+                    'schedule-end': app.$('input[data-roomschedulefilter="end"]').val(),
+                })
+
+                let popup = app.popup.create({
+                    swipeToClose: 'to-bottom',
+                    closeByBackdropClick: true,
+                    el: app.$$('#cu-room-scheduling-schedule-popup'),
+                })
+                popup.open();
+            },
+            requestRoomSchedule() {
+                let app = this.$app;
+                let formData = app.form.convertToData('#cu-room-schedule');
+
+                app.api.requestRoomSchedule(formData).then(data => {
+                    app.views.main.router.navigate('/cu/room-scheduling/');
+                }).catch(() => {
+                    app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+                })
+            },
+            loadCCRs() {
+                let self = this;
+                let app = this.$app;
+
+                app.api.getCCRs().then(CCR => {
+                    this.$setState({
+                        CCR: CCR,
+                    });
+                }).catch(e => {
+                    app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+                });
+            }
+        }
+    }
 </script>
