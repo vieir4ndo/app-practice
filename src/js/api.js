@@ -432,6 +432,39 @@ export class Api {
         return await app.request.promise(post).then(res => res);
     }
 
+    async requestRoomSchedule(data) {
+        let app = this.app;
+        let credentials = await app.storage.getUserCredentials();
+
+        if (!credentials.hasOwnProperty('cu_auth')) {
+            // TODO: Criar resposta de usuário não autenticado
+            return;
+        }
+
+        let schedule = {
+            begin: data['schedule-begin'],
+            end: data['schedule-end'],
+            room_id: data['schedule-room'],
+            ccr_id: data['schedule-ccr'],
+        };
+
+        if (data['schedule-description'] != '') {
+            schedule.description = data['schedule-description'];
+        }
+
+        return await app.request.promise({
+            type: 'POST',
+            url: app.cu_url + 'reserve',
+            data: JSON.stringify(schedule),
+            contentType: "application/json; charset=utf-8",
+            crossDomain: true,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+                xhr.setRequestHeader('Authorization', "Bearer " + credentials.cu_auth);
+            }
+        }).then(res => res);
+    }
+
     async getCCRs () {
         let app = this.app;
         let credentials = await app.storage.getUserCredentials();
@@ -449,35 +482,20 @@ export class Api {
         });
     }
 
-    async requestRoomSchedule(data) {
+    async getReserves () {
         let app = this.app;
         let credentials = await app.storage.getUserCredentials();
-
-        console.log(data)
-
-        if (!credentials.hasOwnProperty('cu_auth')) {
-            // TODO: Criar resposta de usuário não autenticado
-            return;
-        }
-
-        let schedule = {
-            begin: data['schedule-begin'],
-            end: data['schedule-end'],
-            description: data['schedule-description'],
-            room_id: data['schedule-room_id'],
-            ccr_id: data['schedule-ccr'],
-        };
-
         return await app.request.promise({
-            type: 'POST',
-            url: app.cu_url + 'reserve',
-            data: JSON.stringify(schedule),
+            type: 'GET',
+            url: app.cu_url + 'reserves',
             contentType: "application/json; charset=utf-8",
             crossDomain: true,
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
                 xhr.setRequestHeader('Authorization', "Bearer " + credentials.cu_auth);
             }
-        }).then(res => res);
+        }).then(res => {
+            return JSON.parse(res.data).data.data;
+        });
     }
 };

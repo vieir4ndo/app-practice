@@ -122,7 +122,7 @@
 										<div class="item-title item-floating-label">CCR Vinculado</div>
 										<div class="item-input-wrap">
 											<select name="schedule-ccr">
-												<option value="0"></option>
+												<option value=0></option>
 												{{#each CCR}}
 												<option value="{{this.id}}">{{this.name}}</option>
 												{{/each}}
@@ -224,14 +224,17 @@
                 let app = this.$app;
                 let formData = app.form.convertToData('#cu-room-schedule');
 
+                app.dialog.preloader("Solicitando...");
                 app.api.requestRoomSchedule(formData).then(data => {
-                    app.views.main.router.navigate('/cu/room-scheduling/');
-                }).catch(() => {
+                    app.dialog.close();
+                    app.popup.close(app.$$('#cu-room-scheduling-schedule-popup'));
+                    app.views.main.router.navigate('/cu/room-scheduling/locator/');
+                }).catch(e => {
+                    app.dialog.close();
                     app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
                 })
             },
             loadCCRs() {
-                let self = this;
                 let app = this.$app;
 
                 app.api.getCCRs().then(CCR => {
