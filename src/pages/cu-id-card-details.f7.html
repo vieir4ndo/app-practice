@@ -128,10 +128,13 @@
                 if (photoInput != null) {
                     reader.readAsDataURL(photoInput)
                 } else {
+                    app.dialog.preloader("Solicitando alteração...");
                     app.api.requestIdCard(formData).then(data => {
+                        app.dialog.close();
                         app.views.main.router.navigate('/cu/id-card/');
-                    }).catch(() => {
-                        app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+                    }).catch(e => {
+                        app.dialog.close();
+                        app.dialog.alert(`Ocorreu um erro inesperado: ${e.message}`);
                     })
                 }
             }

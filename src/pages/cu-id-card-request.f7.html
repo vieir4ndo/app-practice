@@ -21,7 +21,7 @@
 				<div id="step-data" class="card step">
 					<div class="block display-flex justify-content-center">
 						<lottie-player class="margin-vertical" src="static/lottie/cu-id-card-request-step-data.json"
-							style="width: auto; height: 150px; margin: 0 auto;" loop autoplay>
+													 style="width: auto; height: 150px; margin: 0 auto;" loop autoplay>
 						</lottie-player>
 					</div>
 					<div class="card-header">Primeiro, precisamos de alguns dados...</div>
@@ -32,7 +32,7 @@
 									<div class="item-inner">
 										<div class="item-title item-floating-label">Matrícula</div>
 										<div class="item-input-wrap">
-											<input type="text" name="user-enrollment_id" required validate />
+											<input type="text" name="user-enrollment_id" required validate/>
 											<span class="input-clear-button"></span>
 										</div>
 									</div>
@@ -41,7 +41,7 @@
 									<div class="item-inner">
 										<div class="item-title item-floating-label">Data de nascimento</div>
 										<div class="item-input-wrap">
-											<input type="date" name="user-birth_date" required validate />
+											<input type="date" name="user-birth_date" required validate/>
 										</div>
 									</div>
 								</li>
@@ -50,7 +50,7 @@
 					</div>
 					<div class="card-footer">
 						<button type="button" class="button button-raised button-fill margin-vertical"
-							@click="stepDataContinue">
+										@click="stepDataContinue">
 							Continuar
 						</button>
 					</div>
@@ -60,8 +60,8 @@
 				<div id="step-photo" class="card step display-none">
 					<div class="block display-flex justify-content-center">
 						<lottie-player id="lootie-photo-display" class="margin-vertical"
-							src="static/lottie/cu-id-card-request-step-photo.json"
-							style="width: auto; height: 150px; margin: 0 auto;" speed="0.5" loop autoplay>
+													 src="static/lottie/cu-id-card-request-step-photo.json"
+													 style="width: auto; height: 150px; margin: 0 auto;" speed="0.5" loop autoplay>
 						</lottie-player>
 						<img id="user-photo-preview" width="40%" src="" class="display-none margin-top">
 					</div>
@@ -78,11 +78,11 @@
 						</p>
 
 						<label for="user-photo"
-							class="button button-raised button-fill display-flex margin-bottom color-deeporange">
+									 class="button button-raised button-fill display-flex margin-bottom color-deeporange">
 							<i class="f7-icons margin-right">camera_fill</i>
 							<span id="btn-photo-text"> Selecione sua foto</span>
 							<input required validate class="display-none" type="file" id="user-photo" name="user-photo"
-								accept="image/*;capture=camera" @change="changePhotoDisplay()">
+										 accept="image/*;capture=camera" @change="changePhotoDisplay()">
 						</label>
 					</div>
 					<div class="card-footer padding-vertical row display-flex">
@@ -93,7 +93,7 @@
 						</div>
 						<div class="col-50">
 							<button type="button" class="button button-raised button-fill display-flex"
-								@click="stepPhotoContinue">
+											@click="stepPhotoContinue">
 								Continuar <i class="f7-icons margin-left">chevron_right_circle</i>
 							</button>
 						</div>
@@ -104,7 +104,7 @@
 				<div id="step-credentials" class="card step display-none">
 					<div class="block display-flex justify-content-center">
 						<lottie-player class="margin-vertical" src="static/lottie/cu-id-card-request-step-credentials.json"
-							style="width: auto; height: 150px; margin: 0 auto;" speed="0.5" loop autoplay>
+													 style="width: auto; height: 150px; margin: 0 auto;" speed="0.5" loop autoplay>
 						</lottie-player>
 					</div>
 
@@ -116,7 +116,7 @@
 									<div class="item-inner">
 										<div class="item-title item-floating-label">Usuário idUffs</div>
 										<div class="item-input-wrap">
-											<input type="text" name="user-uid" required validate disabled />
+											<input type="text" name="user-uid" required validate disabled/>
 										</div>
 									</div>
 								</li>
@@ -124,7 +124,7 @@
 									<div class="item-inner">
 										<div class="item-title item-floating-label">Senha</div>
 										<div class="item-input-wrap">
-											<input type="password" name="user-password" required validate />
+											<input type="password" name="user-password" required validate/>
 											<span class="input-clear-button"></span>
 										</div>
 									</div>
@@ -149,86 +149,89 @@
 	</div>
 </template>
 <script>
-	export default {
-		on: {
-			pageInit: function () {
-				let self = this;
-				let app = self.$app;
-				let userCredentials = app.storage.getUserCredentials();
+    export default {
+        on: {
+            pageInit: function () {
+                let self = this;
+                let app = self.$app;
+                let userCredentials = app.storage.getUserCredentials();
 
-				app.$$("input[name*='user-uid']").val(userCredentials.user.uid);
-			}
-		},
-		methods: {
-			changeToStep: function (step, back = false) {
-				let self = this;
-				let app = self.$app;
+                app.$$("input[name*='user-uid']").val(userCredentials.user.uid);
+            }
+        },
+        methods: {
+            changeToStep: function (step, back = false) {
+                let self = this;
+                let app = self.$app;
 
-				app.$$('#' + step).css({ "opacity": 0.5, "left": (back ? "-50px" : "50px") })
-					.removeClass('display-none')
-					.animate({ 'opacity': 1, 'left': 0 });
+                app.$$('#' + step).css({"opacity": 0.5, "left": (back ? "-50px" : "50px")})
+                    .removeClass('display-none')
+                    .animate({'opacity': 1, 'left': 0});
 
-				app.$$('.step:not(#' + step + ')').each(function () {
-					app.$$(this).addClass('display-none');
-				})
+                app.$$('.step:not(#' + step + ')').each(function () {
+                    app.$$(this).addClass('display-none');
+                })
 
-				if (step == 'step-credentials') {
-					app.$$('#id-card-submit').removeClass('display-none');
-				} else {
-					app.$$('#id-card-submit').addClass('display-none');
-				}
-			},
-			stepDataContinue: function () {
-				if (this.$app.input.validateInputs('#step-data')) {
-					this.changeToStep('step-photo');
-				}
-			},
-			stepPhotoContinue: function () {
-				if (this.$app.input.validateInputs('#step-photo')) {
-					this.changeToStep('step-credentials');
-					return;
-				}
-				this.$app.dialog.alert('Você deve inserir uma foto.', 'Não fuja!');
-			},
-			changePhotoDisplay: function () {
-				let self = this;
-				let app = self.$app;
-				let reader = new FileReader();
-				let file = document.getElementById('user-photo').files[0];
+                if (step == 'step-credentials') {
+                    app.$$('#id-card-submit').removeClass('display-none');
+                } else {
+                    app.$$('#id-card-submit').addClass('display-none');
+                }
+            },
+            stepDataContinue: function () {
+                if (this.$app.input.validateInputs('#step-data')) {
+                    this.changeToStep('step-photo');
+                }
+            },
+            stepPhotoContinue: function () {
+                if (this.$app.input.validateInputs('#step-photo')) {
+                    this.changeToStep('step-credentials');
+                    return;
+                }
+                this.$app.dialog.alert('Você deve inserir uma foto.', 'Não fuja!');
+            },
+            changePhotoDisplay: function () {
+                let self = this;
+                let app = self.$app;
+                let reader = new FileReader();
+                let file = document.getElementById('user-photo').files[0];
 
-				if (file) {
-					app.$$('#user-photo-preview').removeClass('display-none');
-					app.$$('#lootie-photo-display').addClass('display-none');
-					app.$$('#btn-photo-text').html('Alterar sua foto');
+                if (file) {
+                    app.$$('#user-photo-preview').removeClass('display-none');
+                    app.$$('#lootie-photo-display').addClass('display-none');
+                    app.$$('#btn-photo-text').html('Alterar sua foto');
 
-					reader.onloadend = function () {
-						document.getElementById('user-photo-preview').src = reader.result;
-					}
-					reader.readAsDataURL(file);
-				} else {
-					app.$$('#user-photo-preview').addClass('display-none');
-					app.$$('#lootie-photo-display').removeClass('display-none');
-					app.$$('#btn-photo-text').html('Selecione sua foto');
-				}
-			},
-			submitIdCardRequest: function () {
-				let app = this.$app;
-				let formData = app.form.convertToData('#cu-id-card-request');
-				let photo = '';
+                    reader.onloadend = function () {
+                        document.getElementById('user-photo-preview').src = reader.result;
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    app.$$('#user-photo-preview').addClass('display-none');
+                    app.$$('#lootie-photo-display').removeClass('display-none');
+                    app.$$('#btn-photo-text').html('Selecione sua foto');
+                }
+            },
+            submitIdCardRequest: function () {
+                let app = this.$app;
+                let formData = app.form.convertToData('#cu-id-card-request');
+                let photo = '';
 
-				let photoInput = document.querySelector('#user-photo')['files'][0];
-				let reader = new FileReader();
-				reader.onload = async function () {
-					photo = reader.result.replace("data:", "").replace(/^.+,/, "");
+                let photoInput = document.querySelector('#user-photo')['files'][0];
+                let reader = new FileReader();
+                reader.onload = async function () {
+                    photo = reader.result.replace("data:", "").replace(/^.+,/, "");
 
-					app.api.requestIdCard(formData, photo).then(data => {
-						app.views.main.router.navigate('/cu/id-card/');
-					}).catch(() => {
-						app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
-					})
-				}
-				reader.readAsDataURL(photoInput);
-			}
-		}
-	}
+                    app.dialog.preloader("Solicitando Carteirinha...");
+                    app.api.requestIdCard(formData, photo).then(data => {
+                        app.dialog.close();
+                        app.views.main.router.navigate('/cu/id-card/');
+                    }).catch(e => {
+                        app.dialog.close();
+                        app.dialog.alert(`Ocorreu um erro inesperado: ${e.message}`);
+                    })
+                }
+                reader.readAsDataURL(photoInput);
+            }
+        }
+    }
 </script>

@@ -319,13 +319,50 @@ export class Api {
     };
 
     // CU Methods
+    async cuAPI(endpoint, type = 'GET', data = {}) {
+        let app = this.app;
+        let credentials = await app.storage.getUserCredentials();
+
+        let post = {
+            type: type,
+            url: app.cu_url + endpoint,
+            contentType: "application/json; charset=utf-8",
+            crossDomain: true
+        };
+
+        if (data != {}) {
+            post.data = JSON.stringify(data);
+        }
+
+        if (credentials.hasOwnProperty('cu_auth')) {
+            post.beforeSend = function (xhr) {
+                xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+                xhr.setRequestHeader('Authorization', "Bearer " + credentials.cu_auth);
+            }
+        }
+
+        return await app.request.promise(post)
+            .then(res => res);
+    }
+
+    getNestedData(data) {
+        while (data.hasOwnProperty('data')) {
+            if (typeof (data.data) == "string") {
+                data = JSON.parse(data.data);
+            }
+            data = data.data;
+        }
+        return data;
+    }
+
     async cuAuth(uid, password) {
         let app = this.app;
 
-        return await app.request.promise.post(app.cu_url + 'login', {
-            "uid": uid,
-            "password": password,
-        }).then(async (res) => {
+        return await this.cuAPI('login', 'POST', {
+                "uid": uid,
+                "password": password
+            }
+        ).then(async (res) => {
             let data = JSON.parse(res.data);
             return data.success ? data.data.token : false;
         }).catch((err) => {
@@ -337,10 +374,8 @@ export class Api {
         let app = this.app;
         let userData = await app.storage.getUserData()
 
-        return await app.request.promise
-            .get(app.cu_url + 'user/operation/' + userData['username'])
-            .then(
-                async res => {
+        return await this.cuAPI('user/operation/' + userData['username'], 'GET')
+            .then(async res => {
                     if (res.status == 204) {
                         return {'noUser': true}
                     }
@@ -372,27 +407,20 @@ export class Api {
             return false;
         }
 
-        return await app.request.promise({
-            type: 'GET',
-            url: app.cu_url + 'user',
-            contentType: "application/json; charset=utf-8",
-            crossDomain: true,
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
-                xhr.setRequestHeader('Authorization', "Bearer " + credentials.cu_auth);
-            }
-        }).then((res) => {
-            const cuData = JSON.parse(res.data);
-            if (cuData.success) {
-                let birth_date = cuData.data.birth_date.split(' ')[0];
-                birth_date = birth_date.split('-');
-                cuData.data.birth_date = new Date(birth_date[0], birth_date[1] - 1, birth_date[2]);
-                cuData.data.birth_date = cuData.data.birth_date.toLocaleDateString('pt-br');
+        return await this.cuAPI('user', 'GET')
+            .then(res => {
+                    const cuData = JSON.parse(res.data);
+                    if (cuData.success) {
+                        let birth_date = cuData.data.birth_date.split(' ')[0];
+                        birth_date = birth_date.split('-');
+                        cuData.data.birth_date = new Date(birth_date[0], birth_date[1] - 1, birth_date[2]);
+                        cuData.data.birth_date = cuData.data.birth_date.toLocaleDateString('pt-br');
 
-                app.storage.setCuData(cuData.data);
-                return cuData.data;
-            }
-        });
+                        app.storage.setCuData(cuData.data);
+                        return cuData.data;
+                    }
+                }
+            );
     };
 
     async requestIdCard(data, photo = null) {
@@ -414,22 +442,12 @@ export class Api {
             args.password = data['user-password'];
         }
 
-        let post = {
-            type: update ? 'PATCH' : 'POST',
-            url: app.cu_url + 'user/iduffs',
-            data: JSON.stringify(args),
-            contentType: "application/json; charset=utf-8",
-            crossDomain: true
-        };
+        return await this.cuAPI('user/iduffs', update ? 'PATCH' : 'POST', args)
+            .then(res => res);
+    }
 
-        if (credentials.hasOwnProperty('cu_auth')) {
-            post.beforeSend = function (xhr) {
-                xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
-                xhr.setRequestHeader('Authorization', "Bearer " + credentials.cu_auth);
-            }
-        }
-
-        return await app.request.promise(post).then(res => res);
+    async getCCRs() {
+        return this.getNestedData(await this.cuAPI('ccr'));
     }
 
     async requestRoomSchedule(data) {
@@ -442,8 +460,8 @@ export class Api {
         }
 
         let schedule = {
-            begin: data['schedule-begin'],
-            end: data['schedule-end'],
+            begin: data['schedule-begin'] + ':00',
+            end: data['schedule-end'] + ':00',
             room_id: data['schedule-room'],
             ccr_id: data['schedule-ccr'],
         };
@@ -452,57 +470,20 @@ export class Api {
             schedule.description = data['schedule-description'];
         }
 
-        return await app.request.promise({
-            type: 'POST',
-            url: app.cu_url + 'reserve',
-            data: JSON.stringify(schedule),
-            contentType: "application/json; charset=utf-8",
-            crossDomain: true,
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
-                xhr.setRequestHeader('Authorization', "Bearer " + credentials.cu_auth);
-            }
-        }).then(res => res);
+        return await this.cuAPI('reserve', 'POST', schedule)
+            .then(res => res);
     }
 
-    async getFromCu(endpoint, id = null) {
-        let app = this.app;
-        let credentials = await app.storage.getUserCredentials();
-
-        return await app.request.promise({
-            type: 'GET',
-            url: app.cu_url + endpoint + (id ? '/' + id : ''),
-            contentType: "application/json; charset=utf-8",
-            crossDomain: true,
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
-                xhr.setRequestHeader('Authorization', "Bearer " + credentials.cu_auth);
-            }
-        }).then(res => {
-            return res;
-        });
+    async getRoomSchedules() {
+        return this.getNestedData(await this.cuAPI('reserve'));
     }
 
-    getNestedData(data) {
-        while (data.hasOwnProperty('data')) {
-            if (typeof(data.data) == "string") {
-                data = JSON.parse(data.data);
-            }
-            data = data.data;
-        }
-        return data;
+    async getRoomSchedule(id) {
+        return this.getNestedData(await this.cuAPI('reserve/' + id));
     }
 
-    async getCCRs() {
-        return this.getNestedData(await this.getFromCu('ccr'));
-    }
-
-    async getReserves() {
-        return this.getNestedData(await this.getFromCu('reserve'));
-    }
-
-    async getReserve(id) {
-        return this.getNestedData(await this.getFromCu('reserve', id));
+    async deleteRoomSchedule(id) {
+        return await this.cuAPI('reserve/' + id, "DELETE");
     }
 
 };

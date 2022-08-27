@@ -27,18 +27,18 @@
 			</div>
 			<div class="list simple-list">
 				<ul class="roomScheduling">
-					{{#if reserves}}
-					{{#unless reserves.length}}
+					{{#if schedules}}
+					{{#unless schedules.length}}
 					<li class="item-content">
 						<div class="item-inner">
 							<div class="item-title">
-								Você ainda não fez agendamentos 😥
+								Você não tem agendamento futuros 😥
 								<div><small>Agende uma sala agora mesmo!</small></div>
 							</div>
 						</div>
 					</li>
 					{{else}}
-					{{#each reserves}}
+					{{#each schedules}}
 					<li class="item-content cu-room-scheduling-status-{{this.status}}" @click="detailsRoomSchedule({{this.id}})">
 						<div class="item-inner">
 							<div class="item-title-row">
@@ -100,23 +100,23 @@
 				 style="background: none;">
 			<div class="block bg-white padding no-margin display-flex flex-direction-column justify-content-space-between"
 					 style="height: 60vh; background-color: white;">
-				{{#if reserve}}
+				{{#if schedule}}
 				<div class="block no-margin">
-					<h2>{{reserve.room}}</h2>
-					<div>Responsável: {{reserve.responsable}}</div>
-					<div>Status do Agendamento: <b>{{reserve.statusDescription}}</b></div>
+					<h2>{{schedule.room}}</h2>
+					<div>Responsável: {{schedule.responsable}}</div>
+					<div>Status do Agendamento: <b>{{schedule.statusDescription}}</b></div>
 					<hr class="margin-vertical">
-					<div class="text-align-right">Início da Reserva: <b>{{reserve.begin}}</b></div>
-					<div class="text-align-right">Fim da Reserva: <b>{{reserve.end}}</b></div>
-					{{#if reserve.ccr}}
-					<div class="margin-top padding-vertical">CCR vinculado: <b>{{reserve.ccr}}</b></div>
+					<div class="text-align-right">Início da Reserva: <b>{{schedule.begin}}</b></div>
+					<div class="text-align-right">Fim da Reserva: <b>{{schedule.end}}</b></div>
+					{{#if schedule.ccr}}
+					<div class="margin-top padding-vertical">CCR vinculado: <b>{{schedule.ccr}}</b></div>
 					{{/if}}
-					{{#if reserve.description}}
+					{{#if schedule.description}}
 					<div>Observações:</div>
-					<textarea rows="4" style="width: 100%;">{{reserve.description}}</textarea>
+					<textarea rows="4" style="width: 100%;">{{schedule.description}}</textarea>
 					{{/if}}
 				</div>
-				<button class="align-self-flex-end button button-fill color-red margin-top">
+				<button class="align-self-flex-end button button-fill color-red margin-top" @click="deleteRoomSchedule({{schedule.id}})">
 					Cancelar Agendamento
 				</button>
 			</div>
@@ -169,24 +169,24 @@
     export default {
         data: function () {
             return {
-                reserves: null,
-                reserve: null
+                schedules: null,
+                schedule: null
             }
         },
         on: {
             pageInit: function () {
-                this.loadReserves();
+                this.loadRoomSchedules();
             }
         },
         methods: {
             detailsRoomSchedule(id) {
                 let app = this.$app;
 
-                app.api.getReserve(id).then(reserve => {
+                app.api.getRoomSchedule(id).then(schedule => {
                     let statusList = ['Aguardando', 'Aprovado', 'Negado']
-                    reserve.statusDescription = statusList[reserve.status]
+                    schedule.statusDescription = statusList[schedule.status]
                     this.$setState({
-                        reserve: reserve
+                        schedule: schedule
                     });
                 })
 
@@ -200,17 +200,33 @@
                 })
                 popup.open();
             },
-            loadReserves() {
+            loadRoomSchedules() {
                 let app = this.$app;
-                app.api.getReserves().then(reserves => {
+                this.$setState({
+                    schedules: null,
+                });
+                app.api.getRoomSchedules().then(schedules => {
                     this.$setState({
-                        reserves: reserves,
+                        schedules: schedules,
                     });
+                })
+            },
+						deleteRoomSchedule(id) {
+                let app = this.$app;
+
+                app.dialog.preloader("Cancelando...");
+                app.api.deleteRoomSchedule(id).then(() => {
+                    app.dialog.close();
+                    app.popup.close(app.$$('#cu-room-scheduling-locator-popup'));
+                    this.loadRoomSchedules();
+                }).catch(e => {
+                    app.dialog.close();
+                    app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
                 })
             },
             clearReserveFields() {
                 this.$setState({
-                    reserve: null
+                    schedule: null
                 });
             }
         }
