@@ -28,84 +28,51 @@
 			<div class="list simple-list">
 				<ul class="roomScheduling">
 					{{#if reserves}}
-						{{#unless reserves.length}}
-								<li class="item-content">
-									<div class="item-inner">
-										<div class="item-title">Você ainda não fez agendamentos 😥</div>
-										<div class="item-text no-wrap">
-											<p>Agende uma sala agora mesmo!</p>
-										</div>
-									</div>
-								</li>
-							{{else}}
-								{{#each reserves}}
-										<li class="item-content" style="border-left: solid 10px green;" @click="detailsRoomSchedule()">
-											<div class="item-inner">
-												<div class="item-title-row">
-													<div class="item-title">
-														<div><b>{{this.room}}</b></div>
-														{{#if this.ccr}}
-														<span class="badge color-orange">{{this.ccr}}</span>
-														{{/if}}
-													</div>
-												</div>
-												<div class="item-text no-wrap">
-													<div><b>{{this.begin}}</b></div>
-												</div>
-											</div>
-										</li>
-								{{/each}}
-						{{/unless}}
+					{{#unless reserves.length}}
+					<li class="item-content">
+						<div class="item-inner">
+							<div class="item-title">
+								Você ainda não fez agendamentos 😥
+								<div><small>Agende uma sala agora mesmo!</small></div>
+							</div>
+						</div>
+					</li>
+					{{else}}
+					{{#each reserves}}
+					<li class="item-content cu-room-scheduling-status-{{this.status}}" @click="detailsRoomSchedule({{this.id}})">
+						<div class="item-inner">
+							<div class="item-title-row">
+								<div class="item-title">
+									<div><b>{{this.room}}</b></div>
+									{{#if this.ccr}}
+									<span class="badge color-orange">{{this.ccr}}</span>
+									{{/if}}
+								</div>
+							</div>
+							<div class="item-text no-wrap">
+								<div><b>{{this.begin}}</b></div>
+							</div>
+						</div>
+					</li>
+					{{/each}}
+					{{/unless}}
 					{{else}}
 					{{#each '123'}}
-							<li class="item-content skeleton-text skeleton-effect-blink">
-								<div class="item-inner">
-									<div class="item-title-row">
-										<div class="item-title">
-											<div><b>________</b></div>
-											<span>_________</span>
-										</div>
-									</div>
-									<div class="item-text no-wrap">
-										<div><b>___________________</b></div>
-									</div>
+					<li class="item-content skeleton-text skeleton-effect-blink">
+						<div class="item-inner">
+							<div class="item-title-row">
+								<div class="item-title">
+									<div><b>________</b></div>
+									<span>_________</span>
 								</div>
-							</li>
+							</div>
+							<div class="item-text no-wrap">
+								<div><b>___________________</b></div>
+							</div>
+						</div>
+					</li>
 					{{/each}}
 					{{/if}}
-<!--					<li class="item-content" style="border-left: solid 10px green;" @click="detailsRoomSchedule()">-->
-<!--						<div class="item-inner">-->
-<!--							<div class="item-title-row">-->
-<!--								<div class="item-title">-->
-<!--									<div><b>Sala 404</b></div>-->
-<!--									<span class="badge color-orange">CC-GEX613</span>-->
-<!--								</div>-->
-<!--							</div>-->
-<!--							<div class="item-text no-wrap"><b>03/08 19h10 - 22h40</b></div>-->
-<!--						</div>-->
-<!--					</li>-->
-<!--					<li class="item-content" style="border-left: solid 10px #FCAE17;" @click="detailsRoomSchedule()">-->
-<!--						<div class="item-inner">-->
-<!--							<div class="item-title-row">-->
-<!--								<div class="item-title">-->
-<!--									<div><b>Sala 403</b></div>-->
-<!--									<span class="badge color-orange">CC-GEX613</span>-->
-<!--								</div>-->
-<!--							</div>-->
-<!--							<div class="item-text no-wrap">03/08 13h30 - 18h00</div>-->
-<!--						</div>-->
-<!--					</li>-->
-<!--					<li class="item-content" style="border-left: solid 10px rgb(218, 36, 36);" @click="detailsRoomSchedule()">-->
-<!--						<div class="item-inner">-->
-<!--							<div class="item-title-row">-->
-<!--								<div class="item-title">-->
-<!--									<div><b>Sala 403</b></div>-->
-<!--									<span class="badge color-orange">CC-GEX613</span>-->
-<!--								</div>-->
-<!--							</div>-->
-<!--							<div class="item-text no-wrap">02/08 13h30 - 18h00</div>-->
-<!--						</div>-->
-<!--					</li>-->
 				</ul>
 			</div>
 		</div>
@@ -129,26 +96,43 @@
 			</div>
 		</div>
 
-		<div class="popup display-flex flex-direction-column-reverse" id="cu-room-scheduling-locator-popup" style="background: none;">
+		<div class="popup display-flex flex-direction-column-reverse" id="cu-room-scheduling-locator-popup"
+				 style="background: none;">
 			<div class="block bg-white padding no-margin display-flex flex-direction-column justify-content-space-between"
 					 style="height: 60vh; background-color: white;">
+				{{#if reserve}}
 				<div class="block no-margin">
-					<h2>Sala 403</h2>
-					<div>Responsável pela Sala: Dênio Duarte</div>
-					<div>Status do Agendamento: <b>Pendente</b></div>
+					<h2>{{reserve.room}}</h2>
+					<div>Responsável: {{reserve.responsable}}</div>
+					<div>Status do Agendamento: <b>{{reserve.statusDescription}}</b></div>
 					<hr class="margin-vertical">
-					<div class="text-align-right">Início da Reserva: <b>03/08/2022 - 13h30</b></div>
-					<div class="text-align-right">Fim da Reserva: <b>03/08/2022 - 18h00</b></div>
-					<div class="margin-vertical padding-vertical">CCR vinculado: <b>CC-GEX613</b></div>
-					<div><b>Observações: </b></div>
-					<textarea rows="4"
-										style="width: 100%;">Reserva referente a uma atividade prática de Geometria Analítica com o 4º Semestre de Ciência da computação, utilizaremos o GeoGebra web.</textarea>
+					<div class="text-align-right">Início da Reserva: <b>{{reserve.begin}}</b></div>
+					<div class="text-align-right">Fim da Reserva: <b>{{reserve.end}}</b></div>
+					{{#if reserve.ccr}}
+					<div class="margin-top padding-vertical">CCR vinculado: <b>{{reserve.ccr}}</b></div>
+					{{/if}}
+					{{#if reserve.description}}
+					<div>Observações:</div>
+					<textarea rows="4" style="width: 100%;">{{reserve.description}}</textarea>
+					{{/if}}
 				</div>
 				<button class="align-self-flex-end button button-fill color-red margin-top">
 					Cancelar Agendamento
 				</button>
 			</div>
+			{{else}}
+			<div class="block no-margin skeleton-text skeleton-effect-blink">
+				<h2>___________</h2>
+				<div>___________ ____ ____: __________ __ _________</div>
+				<div>______ __ ___________: <b>_____________</b></div>
+				<hr class="margin-vertical">
+				<div class="text-align-right">______ __ _______: <b>__________ ________</b></div>
+				<div class="text-align-right">___ __ _______: <b>__________ ________</b></div>
+				<div class="margin-top padding-vertical">_____________: <b>_______</b></div>
+			</div>
 		</div>
+		{{/if}}
+	</div>
 	</div>
 </template>
 <style>
@@ -167,12 +151,26 @@
         margin-left: 5px;
         font-weight: bold;
     }
+
+    .cu-room-scheduling-status-0 {
+        border-left: solid 10px #FCAE17
+    }
+
+    .cu-room-scheduling-status-1 {
+        border-left: solid 10px green;
+    }
+
+    .cu-room-scheduling-status-2 {
+        border-left: solid 10px rgb(218, 36, 36);
+    }
+
 </style>
 <script>
     export default {
         data: function () {
             return {
                 reserves: null,
+                reserve: null
             }
         },
         on: {
@@ -181,13 +179,24 @@
             }
         },
         methods: {
-            detailsRoomSchedule() {
+            detailsRoomSchedule(id) {
                 let app = this.$app;
+
+                app.api.getReserve(id).then(reserve => {
+                    let statusList = ['Aguardando', 'Aprovado', 'Negado']
+                    reserve.statusDescription = statusList[reserve.status]
+                    this.$setState({
+                        reserve: reserve
+                    });
+                })
 
                 let popup = app.popup.create({
                     swipeToClose: 'to-bottom',
                     closeByBackdropClick: true,
                     el: app.$$('#cu-room-scheduling-locator-popup'),
+                    on: {
+                        closed: this.clearReserveFields
+                    }
                 })
                 popup.open();
             },
@@ -198,6 +207,11 @@
                         reserves: reserves,
                     });
                 })
+            },
+            clearReserveFields() {
+                this.$setState({
+                    reserve: null
+                });
             }
         }
     }
