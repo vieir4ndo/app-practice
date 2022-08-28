@@ -11,10 +11,11 @@
         <div id="id-card-display" class="block">
             <div class="id-card-wrapper" id="id-card-front">
                 <img class="template" src="../static/images/cu/id-card/id-card-front.png" alt="">
-                <img id="user-photo-display" src="data:image/png;base64, {{idCard.cuData.profile_photo}}" alt="">
+                <img id="user-photo-display" src="{{idCard.cuData.profile_photo}}" alt="">
                 <span id="user-name-display">{{idCard.cuData.name}}</span>
                 <span id="user-uid-display">{{idCard.cuData.enrollment_id}}</span>
                 <span id="user-course-display">{{idCard.cuData.course}}</span>
+                <span id="user-type-display">{{idCard.cuData.type}}</span>
             </div>
             <div class="id-card-wrapper" id="id-card-back">
                 <img class="template" src="../static/images/cu/id-card/id-card-back.png" alt="">
@@ -160,6 +161,14 @@
         font-size: 105%;
         top: 66%;
         left: 44%;
+    }
+
+    #user-type-display {
+        position: absolute;
+        text-transform: uppercase;
+        font-size: 105%;
+        top: 92.5%;
+        left: 8.5%;
     }
 
     #user-uid-display {

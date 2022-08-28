@@ -13,22 +13,26 @@
 			</div>
 		</div>
 
+		{{#if cuData}}
+		{{#if cuData.is_lessee}}
 		<div class="card card-banner">
 			<div class="card-content">
-				<a href="/cu/room-scheduling/locator/">
+				<a href="/cu/room-scheduling/lessee/">
 					<div class="card-header"
-						style="background-image: url(../static/images/cu/room-scheduling/room-scheduling-banner.svg); background-color: #D3D3D3;">
+							 style="background-image: url(../static/images/cu/room-scheduling/room-scheduling-banner.svg); background-color: #D3D3D3;">
 						Reserva de Salas
 					</div>
 				</a>
 			</div>
 		</div>
+		{{/if}}
+		{{/if}}
 
 		<div class="card card-banner">
 			<div class="card-content">
 				<a href="/cu/university-restaurant/">
 					<div class="card-header"
-						style="background-image: url(../static/images/meal.svg); background-color: rgba(45,120,156,0.6);">
+							 style="background-image: url(../static/images/meal.svg); background-color: rgba(45,120,156,0.6);">
 						Restaurante Universitário
 					</div>
 				</a>
@@ -37,21 +41,44 @@
 	</div>
 </template>
 <style>
-	.card-banner {
-		height: 150px;
-		background-color: black;
-	}
+    .card-banner {
+        height: 150px;
+        background-color: black;
+    }
 
-	.card-banner .card-header {
-		min-height: 150px;
-		background-repeat: no-repeat;
-		background-size: 100%;
-		color: #ffffff;
-		font-weight: bold;
-		text-shadow: 2px 2px 6px black;
-		font-size: 24px;
-	}
+    .card-banner .card-header {
+        min-height: 150px;
+        background-repeat: no-repeat;
+        background-size: 100%;
+        color: #ffffff;
+        font-weight: bold;
+        text-shadow: 2px 2px 6px black;
+        font-size: 24px;
+    }
 </style>
 <script>
-	export default {}
+    export default {
+        data: function () {
+            return {
+                cuData: null
+            }
+        },
+        on: {
+            tabInit: function () {
+                this.loadUser();
+            }
+        },
+        methods: {
+            loadUser: function () {
+                let app = this.$app;
+                app.storage.getCuData().then(cuData => {
+                    this.$setState({
+                        cuData: cuData,
+                    });
+                }).catch(e => {
+                    app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+                });
+            }
+        }
+    }
 </script>
