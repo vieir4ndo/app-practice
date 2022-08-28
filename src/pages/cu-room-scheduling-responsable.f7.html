@@ -1,0 +1,262 @@
+<template>
+	<div class="page" data-name="cu-room-scheduling-responsable">
+
+		<div class="navbar">
+			<div class="navbar-bg"></div>
+			<div class="navbar-inner sliding">
+				<!-- Link to go back -->
+				<div class="left">
+					<a href="/" class="link back">
+						<i class="icon icon-back"></i>
+						<span class="if-not-md">Voltar</span>
+					</a>
+				</div>
+				<div class="title">Agendamento de Salas</div>
+			</div>
+		</div>
+
+		<div class="page-content">
+			<div id="lottie" class="block display-flex align-items-center">
+				<div id="lottie-text">
+					<h2 class="no-margin">Solicitações</h2>
+				</div>
+				<div>
+					<lottie-player src="../static/lottie/cu-room-scheduling-responsable.json" loop autoplay>
+					</lottie-player>
+				</div>
+			</div>
+			<div class="list simple-list">
+				<ul class="roomRequests">
+					{{#if requests}}
+					{{#unless requests.length}}
+					<li class="item-content">
+						<div class="item-inner">
+							<div class="item-title">
+								Você não tem reservas pendentes 😥
+							</div>
+						</div>
+					</li>
+					{{else}}
+					{{#each requests}}
+					<li class="item-content cu-room-requests-status-{{this.status}}" @click="detailsRoomRequest({{this.id}})">
+						<div class="item-inner">
+							<div class="item-title-row">
+								<div class="item-title">
+									<div><b>{{this.room}}</b></div>
+									{{#if this.ccr}}
+									<span class="badge color-orange">{{this.ccr}}</span>
+									{{/if}}
+								</div>
+							</div>
+							<div class="item-text no-wrap">
+								<div><b>{{this.begin}}</b></div>
+							</div>
+						</div>
+					</li>
+					{{/each}}
+					{{/unless}}
+					{{else}}
+					{{#each '123'}}
+					<li class="item-content skeleton-text skeleton-effect-blink">
+						<div class="item-inner">
+							<div class="item-title-row">
+								<div class="item-title">
+									<div><b>________</b></div>
+									<span>_________</span>
+								</div>
+							</div>
+							<div class="item-text no-wrap">
+								<div><b>___________________</b></div>
+							</div>
+						</div>
+					</li>
+					{{/each}}
+					{{/if}}
+				</ul>
+			</div>
+		</div>
+
+		<div class="fab fab-right-bottom color-orange">
+			<a href="#">
+				<i class="icon f7-icons if-not-md">plus</i>
+				<i class="icon f7-icons if-not-md">xmark</i>
+				<i class="icon material-icons md-only">add</i>
+				<i class="icon material-icons md-only">close</i>
+			</a>
+			<div class="fab-buttons fab-buttons-top">
+				<a class="fab-label-button" href="/cu/room-scheduling/locator/">
+					<span><i class="icon f7-icons">calendar_badge_plus</i></span>
+					<span class="fab-label">Agendamentos</span>
+				</a>
+				<a class="fab-label-button" href="/cu/room-scheduling/schedule/">
+					<span><i class="icon material-icons">add</i></span>
+					<span class="fab-label">Novo Agendamento</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="popup" id="cu-room-scheduling-responsable-popup">
+			<div class="block no-margin-bottom">
+				<a class="link popup-close" href="#">
+					<i class="f7-icons">chevron_left</i>Voltar
+				</a>
+				{{#if request}}
+				<div class="display-flex flex-direction-column justify-content-space-between">
+					<div class="block">
+						<h2>{{request.room}}</h2>
+						<div>Status do Agendamento: <span class="badge color-orange"><b>{{request.statusDescription}}</b></span>
+						</div>
+						<hr class="margin-vertical">
+						<div class="text-align-right">Início da Reserva: <b>{{request.begin}}</b></div>
+						<div class="text-align-right">Fim da Reserva: <b>{{request.end}}</b></div>
+						{{#if request.ccr}}
+						<div class="margin-top padding-top">CCR vinculado:
+							<span class="badge color-orange"><b>{{request.ccr}}</b></span>
+						</div>
+						{{/if}}
+						{{#if request.description}}
+						<div class="margin-top padding-top"><b>Observações da Solicitação: </b></div>
+						<textarea rows="4" style="width: 100%;">{{request.description}}</textarea>
+						{{/if}}
+					</div>
+					{{#if request.status}}
+					<div class="block">
+						<div><b>Observações da Aprovação: </b></div>
+						<textarea rows="4" style="width: 100%;">{{request.observation}}</textarea>
+					</div>
+					{{else}}
+					<div class="block">
+						<div class="list no-hairlines no-margin">
+							<li class="item-content item-input item-input-outline no-padding">
+								<div class="item-inner no-padding">
+									<div class="item-title item-floating-label">Observações da Aprovação</div>
+									<div class="item-input-wrap">
+										<textarea id="request-observation" cols="30" rows="10"
+															placeholder="Descreva sobre a aprovação/negativa da solicitação..."></textarea>
+									</div>
+								</div>
+							</li>
+						</div>
+						<button class="button button-fill color-green margin-top" @click="updateRoomSchedule({{request.id}}, 1)">
+							Aprovar Solicitação
+						</button>
+						<button class="button button-fill color-red margin-top" @click="updateRoomSchedule({{request.id}}, 2)">
+							Negar Solicitação
+						</button>
+					</div>
+					{{/if}}
+				</div>
+				{{else}}
+				<div class="display-flex flex-direction-column justify-content-space-between block">
+					<div class="block skeleton-text skeleton-effect-blink">
+						<h2>_______</h2>
+						<div>_____________________ _______
+							<hr class="margin-vertical">
+							<div class="text-align-right">_______________ <b>_________________</b></div>
+							<div class="text-align-right">_____________ <b>_________________</b></div>
+							<div class="margin-vertical padding-vertical">
+								_____________ _________
+							</div>
+							<div><b>_______________________</b></div>
+							<textarea rows="4" style="width: 100%;">_______________________________________________________</textarea>
+						</div>
+					</div>
+					{{/if}}
+				</div>
+			</div>
+		</div>
+</template>
+<style>
+    .roomRequests .item-content {
+        line-height: normal;
+        height: 100px;
+    }
+
+    /* Striped List */
+    .roomRequests .item-content:nth-child(even) {
+        background-color: rgb(230, 230, 230);
+    }
+
+    .cu-room-requests-status-0 {
+        border-left: solid 10px #FCAE17
+    }
+
+    .cu-room-requests-status-1 {
+        border-left: solid 10px green;
+    }
+
+    .cu-room-requests-status-2 {
+        border-left: solid 10px rgb(218, 36, 36);
+    }
+</style>
+<script>
+    export default {
+        data: function () {
+            return {
+                requests: null,
+                request: null
+            }
+        },
+        on: {
+            pageInit: function () {
+                this.loadRoomRequests();
+            }
+        },
+        methods: {
+            detailsRoomRequest(id) {
+                let app = this.$app;
+
+                app.api.getRoomSchedule(id).then(request => {
+                    let statusList = ['Aguardando', 'Aprovado', 'Negado']
+                    request.statusDescription = statusList[request.status]
+                    this.$setState({
+                        request: request
+                    });
+                })
+
+                let popup = app.popup.create({
+                    swipeToClose: 'to-bottom',
+                    closeByBackdropClick: true,
+                    el: app.$$('#cu-room-scheduling-responsable-popup'),
+                    on: {
+                        closed: this.clearRequestFields
+                    }
+                })
+                popup.open();
+            },
+            loadRoomRequests() {
+                let app = this.$app;
+                this.$setState({
+                    requests: null,
+                });
+                app.api.getRoomRequests().then(requests => {
+                    this.$setState({
+                        requests: requests,
+                    });
+                })
+            },
+            updateRoomSchedule(schedule_id, new_status) {
+                let app = this.$app;
+                let formData = {
+                    'request-new_status': new_status,
+                    'request-observation': app.$('#request-observation').val()
+                };
+
+                app.dialog.preloader("Alterando Status...");
+                app.api.updateRoomRequest(formData, schedule_id).then(data => {
+                    app.dialog.close();
+                    app.popup.close(app.$$('#cu-room-scheduling-responsable-popup'));
+                    this.loadRoomRequests();
+                }).catch(e => {
+                    app.dialog.close();
+                    app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+                })
+            },
+            clearRequestFields() {
+                this.$setState({
+                    request: null
+                });
+            }
+        }
+    }
+</script>

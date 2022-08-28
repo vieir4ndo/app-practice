@@ -15,7 +15,7 @@ import CuIdCardRequestPage from "../pages/cu-id-card-request.f7.html";
 import CuIdCardDetailsPage from "../pages/cu-id-card-details.f7.html";
 import CuHomePage from "../pages/cu-home.f7.html";
 import CuRoomSchedulingLocatorPage from "../pages/cu-room-scheduling-locator.f7.html";
-import CuRoomSchedulingResponsiblePage from "../pages/cu-room-scheduling-responsible.f7.html";
+import CuRoomSchedulingResponsiblePage from "../pages/cu-room-scheduling-responsable.f7.html";
 import CuRoomSchedulingSchedulePage from "../pages/cu-room-scheduling-schedule.f7.html";
 import CuUniversityRestaurantPage from "../pages/cu-university-restaurant.f7.html";
 
