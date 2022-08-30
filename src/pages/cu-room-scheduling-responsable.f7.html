@@ -104,7 +104,7 @@
 				<div class="display-flex flex-direction-column justify-content-space-between">
 					<div class="block">
 						<h2>{{request.room}}</h2>
-						<div>Status do Agendamento: <span class="badge color-orange"><b>{{request.statusDescription}}</b></span>
+						<div>Status do Agendamento: <span class="badge cu-room-status-{{request.status}}"><b>{{request.statusDescription}}</b></span>
 						</div>
 						<hr class="margin-vertical">
 						<div class="text-align-right">Início da Reserva: <b>{{request.begin}}</b></div>
@@ -187,6 +187,18 @@
 
     .cu-room-requests-status-2 {
         border-left: solid 10px rgb(218, 36, 36);
+    }
+
+    .cu-room-status-0 {
+        background-color: #FCAE17
+    }
+
+    .cu-room-status-1 {
+        background-color: green;
+    }
+
+    .cu-room-status-2 {
+        background-color: rgb(218, 36, 36);
     }
 </style>
 <script>

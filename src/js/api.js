@@ -511,4 +511,8 @@ export class Api {
         return this.getNestedData(await this.cuAPI('request'));
     }
 
+    async getEmptyRooms(begin, end) {
+        return this.getNestedData(await this.cuAPI('reserve/time/' + begin + '/' + end));
+    }
+
 };

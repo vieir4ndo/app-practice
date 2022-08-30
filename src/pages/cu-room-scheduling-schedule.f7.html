@@ -28,41 +28,62 @@
 			<div class="display-flex justify-content-space-around">
 				<span class="badge color-primary padding" @click="filterRoomSchedule('begin')">
 					<h2 class="display-flex">
-						De: <input type="text" readonly="readonly" value="01/08/2022 14:30" data-roomschedulefilter="begin"/>
+						De: <input type="text" readonly="readonly" value="30/08/2022 19:00" data-roomschedulefilter="begin"/>
 					</h2>
 				</span>
 			</div>
 			<div class="display-flex justify-content-space-around margin-top">
 				<span class="badge color-primary padding" @click="filterRoomSchedule('end')">
 					<h2 class="display-flex">
-						Até: <input type="text" readonly="readonly" value="01/08/2022 14:30" data-roomschedulefilter="end"/>
+						Até: <input type="text" readonly="readonly" value="30/08/2022 22:40" data-roomschedulefilter="end"/>
 					</h2>
 				</span>
 			</div>
 			<div class="list simple-list">
 				<ul class="roomScheduling">
-					<li class="item-content" @click="openRequestSchedule()">
+					{{#if rooms}}
+					{{#unless rooms.length}}
+					<li class="item-content">
+						<div class="item-inner">
+							<div class="item-title">
+								Não há salas disponíveis neste período 😥
+								<div><small>Tente outro horário!</small></div>
+							</div>
+						</div>
+					</li>
+					{{else}}
+					{{#each rooms}}
+					<li class="item-content"
+							@click="openRequestSchedule('{{this.room_id}}', '{{this.room}}', '{{this.block}}', '{{this.responsable}}')">
 						<div class="item-inner">
 							<div class="item-title-row">
 								<div class="item-title">
-									<div><b>Sala 404</b></div>
-									<span class="badge color-orange">Bloco A</span>
+									<div><b>{{this.room}}</b></div>
+									<span class="badge color-orange">{{this.block}}</span>
 								</div>
 							</div>
-							<div class="item-text no-wrap">50 Alunos</div>
+							{{#if this.capacity}}
+							<div class="item-text no-wrap">{{this.capacity}} Alunos</div>
+							{{/if}}
 						</div>
 					</li>
-					<li class="item-content" @click="openRequestSchedule()">
+					{{/each}}
+					{{/unless}}
+					{{else}}
+					{{#each '123'}}
+					<li class="item-content skeleton-text skeleton-effect-blink">
 						<div class="item-inner">
 							<div class="item-title-row">
 								<div class="item-title">
-									<div><b>Sala 403</b></div>
-									<span class="badge color-orange">Bloco A</span>
+									<div><b>____________</b></div>
+									_______
 								</div>
 							</div>
-							<div class="item-text no-wrap">30 Alunos</div>
+							<div class="item-text no-wrap">__________</div>
 						</div>
 					</li>
+					{{/each}}
+					{{/if}}
 				</ul>
 			</div>
 		</div>
@@ -93,8 +114,8 @@
 				</a>
 				<div class="display-flex flex-direction-column justify-content-flex-start">
 					<div class="block no-margin-bottom">
-						<h2>Sala 403 <span class="badge color-orange"><b>Bloco A</b></span></h2>
-						<div>Responsável pela Sala: Dênio Duarte</div>
+						<h2><span id="schedule-room"></span> <span class="badge color-orange"><b id="schedule-block"></b></span></h2>
+						<div>Responsável pela Sala: <span id="schedule-responsable"></span></div>
 						<hr class="margin-vertical">
 					</div>
 					<form id="cu-room-schedule">
@@ -141,7 +162,7 @@
 								</li>
 							</ul>
 						</div>
-						<input type="hidden" name="schedule-room" value="1">
+						<input type="hidden" name="schedule-room" id="schedule-room_id" value="">
 					</form>
 
 					<div class="block">
@@ -176,11 +197,13 @@
         data: function () {
             return {
                 CCR: null,
+                rooms: null,
             }
         },
         on: {
             pageInit: function () {
                 this.loadCCRs();
+                this.loadEmptyRooms();
             },
         },
         methods: {
@@ -194,9 +217,7 @@
                     backdrop: true,
                     timePicker: true,
                     on: {
-                        close: function () {
-                            console.log('Procurar()')
-                        },
+                        close: this.loadEmptyRooms,
                         closed: function () {
                             calendar.destroy();
                         }
@@ -205,13 +226,18 @@
 
                 calendar.open();
             },
-            openRequestSchedule() {
+            openRequestSchedule(room_id, room, block, responsable) {
                 let app = this.$app;
 
                 app.form.fillFromData('#cu-room-schedule', {
                     'schedule-begin': app.$('input[data-roomschedulefilter="begin"]').val(),
                     'schedule-end': app.$('input[data-roomschedulefilter="end"]').val(),
                 })
+
+								app.$('#schedule-room_id').val(room_id)
+								app.$('#schedule-room').text(room)
+								app.$('#schedule-block').text(block)
+								app.$('#schedule-responsable').text(responsable)
 
                 let popup = app.popup.create({
                     swipeToClose: 'to-bottom',
@@ -240,6 +266,26 @@
                 app.api.getCCRs().then(CCR => {
                     this.$setState({
                         CCR: CCR,
+                    });
+                }).catch(e => {
+                    app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
+                });
+            },
+            loadEmptyRooms() {
+                let app = this.$app;
+
+                this.$setState({
+                    rooms: null,
+                });
+
+                let begin = app.$('input[data-roomschedulefilter="begin"]').val().replaceAll('/', ' ').split(' ');
+                begin = begin[2] + '-' + begin[1] + '-' + begin[0] + 'T' + begin[3] + ':00';
+                let end = app.$('input[data-roomschedulefilter="end"]').val().replaceAll('/', ' ').split(' ');
+                end = end[2] + '-' + end[1] + '-' + end[0] + 'T' + end[3] + ':00';
+
+                app.api.getEmptyRooms(begin, end).then(rooms => {
+                    this.$setState({
+                        rooms: rooms,
                     });
                 }).catch(e => {
                     app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");
