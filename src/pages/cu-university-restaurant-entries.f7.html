@@ -1,0 +1,124 @@
+<template>
+	<div class="page" data-name="cu-university-restaurant-entries">
+		<div class="navbar">
+			<div class="navbar-bg"></div>
+			<div class="navbar-inner sliding">
+				<!-- Link to go back -->
+				<div class="left">
+					<a href="/" class="link back">
+						<i class="icon icon-back"></i>
+						<span class="if-not-md">Voltar</span>
+					</a>
+				</div>
+				<div class="title">Restaurante Universitário</div>
+			</div>
+		</div>
+
+		<div class="page-content">
+			<div id="entries">
+				<h2 style="text-align: center;">Entradas</h2>
+
+				<div class="list simple-list">
+					<ul class="entries-list">
+						{{#if entries}}
+							{{#unless entries.length}}
+								<li class="item-content">
+									<div class="item-inner justify-content-center">
+										<div class="item-title">
+											Não há nenhuma entrada registrada ainda!
+										</div>
+									</div>
+								</li>
+							{{else}}
+								{{#each entries}}
+									<li class="item-content">
+										<div class="item-inner">
+											<div class="item-title-row">
+												<div class="item-title">
+													<div><b>{{ this.meal }}</b></div>
+												</div>
+											</div>
+											<div class="item-text no-wrap">{{ this.date_time }}</div>
+										</div>
+									</li>
+								{{/each}}
+							{{/unless}}
+						{{else}}
+							{{#each '123'}}
+								<li class="item-content skeleton-text skeleton-effect-blink">
+									<div class="item-inner">
+										<div class="item-title-row">
+											<div class="item-title">
+												<div><b>________</b></div>
+											</div>
+										</div>
+										<div class="item-text no-wrap">
+											<div><b>___________________</b></div>
+										</div>
+									</div>
+								</li>
+							{{/each}}
+						{{/if}}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+<style>
+	.entries-list .item-content {
+		line-height: normal;
+		height: 65px;
+	}
+
+	.entries-list .item-content.lunch {
+		border-left: solid 10px var(--color-5);
+	}
+
+	.entries-list .item-content.dinner {
+		border-left: solid 10px var(--color-2);
+	}
+
+	.entries-list .item-content:nth-child(even) {
+		background-color: rgb(223, 223, 223);
+	}
+</style>
+<script>
+	export default {
+		data: function () {
+			return {
+				entries: null
+			}
+		},
+		on: {
+			pageInit: function () {
+				this.loadEntries();
+			}
+		},
+		methods: {
+			loadEntries() {
+				let app = this.$app;
+				this.$setState({
+					entries: null,
+				});
+				app.api.getEntries().then(entries => {
+
+					entries.map(entry => {
+						let dateTime = new Date(entry.date_time);
+						let hour = dateTime.getHours();
+
+						let formattedDate = dateTime.toLocaleString('pt-BR');
+						let isLunch = hour > 10 && hour < 14;
+
+						entry.date_time = formattedDate;
+						entry.meal = (isLunch) ? 'Almoço' : 'Janta';
+					})
+
+					this.$setState({
+						entries: entries,
+					});
+				})
+			}
+		}
+	}
+</script>

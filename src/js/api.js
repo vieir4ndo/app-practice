@@ -506,7 +506,7 @@ export class Api {
     async deleteRoomSchedule(id) {
         return await this.cuAPI('reserve/' + id, "DELETE");
     }
-
+  
     async getRoomRequests() {
         return this.getNestedData(await this.cuAPI('request'));
     }
@@ -515,4 +515,20 @@ export class Api {
         return this.getNestedData(await this.cuAPI('reserve/time/' + begin + '/' + end));
     }
 
+    // CU RU methods
+    async getTicketAmount() {
+        return this.getNestedData(await this.cuAPI('ticket/balance'));
+    }
+
+    async getTickets() {
+        return this.getNestedData(await this.cuAPI('ticket'));
+    }
+
+    async getEntries() {
+        return this.getNestedData(await this.cuAPI('entry'));
+    }
+
+    async getMenus() {
+        return this.getNestedData(await this.cuAPI('menu'));
+    }
 };

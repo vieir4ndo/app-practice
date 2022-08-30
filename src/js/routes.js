@@ -17,7 +17,9 @@ import CuHomePage from "../pages/cu-home.f7.html";
 import CuRoomSchedulingLesseePage from "../pages/cu-room-scheduling-lessee.f7.html";
 import CuRoomSchedulingResponsablePage from "../pages/cu-room-scheduling-responsable.f7.html";
 import CuRoomSchedulingSchedulePage from "../pages/cu-room-scheduling-schedule.f7.html";
-import CuUniversityRestaurantPage from "../pages/cu-university-restaurant.f7.html";
+import CuUniversityRestaurantTicketsPage from "../pages/cu-university-restaurant-tickets.f7.html";
+import CuUniversityRestaurantEntriesPage from "../pages/cu-university-restaurant-entries.f7.html";
+import CuUniversityRestaurantMenusPage from "../pages/cu-university-restaurant-menus.f7.html";
 
 import IdeasPage from "../pages/ideas.f7.html";
 import ServicesPage from "../pages/services.f7.html";
@@ -188,7 +190,16 @@ const cuPagesRoutes = function () {
   if (IsEnabled.cuUniversityRestaurantPage) {
     modules.push({
       path: "/university-restaurant/",
-      component: CuUniversityRestaurantPage
+      routes : [{
+        path: "/tickets/",
+        component: CuUniversityRestaurantTicketsPage,
+      }, {
+        path: "/entries/",
+        component: CuUniversityRestaurantEntriesPage,
+      }, {
+        path: "/menus/",
+        component: CuUniversityRestaurantMenusPage
+      }]
     });
   }
 
