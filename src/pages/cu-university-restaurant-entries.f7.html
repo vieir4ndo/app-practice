@@ -18,28 +18,49 @@
 			<div id="entries">
 				<h2 style="text-align: center;">Entradas</h2>
 
-				{{#if entries}}
-					<div class="list simple-list">
-						<ul class="entries-list">
-							{{#each entries}}
+				<div class="list simple-list">
+					<ul class="entries-list">
+						{{#if entries}}
+							{{#unless entries.length}}
 								<li class="item-content">
+									<div class="item-inner justify-content-center">
+										<div class="item-title">
+											Não há nenhuma entrada registrada ainda!
+										</div>
+									</div>
+								</li>
+							{{else}}
+								{{#each entries}}
+									<li class="item-content">
+										<div class="item-inner">
+											<div class="item-title-row">
+												<div class="item-title">
+													<div><b>{{ this.meal }}</b></div>
+												</div>
+											</div>
+											<div class="item-text no-wrap">{{ this.date_time }}</div>
+										</div>
+									</li>
+								{{/each}}
+							{{/unless}}
+						{{else}}
+							{{#each '123'}}
+								<li class="item-content skeleton-text skeleton-effect-blink">
 									<div class="item-inner">
 										<div class="item-title-row">
 											<div class="item-title">
-												<div><b>{{ this.meal }}</b></div>
+												<div><b>________</b></div>
 											</div>
 										</div>
-										<div class="item-text no-wrap">{{ this.date_time }}</div>
+										<div class="item-text no-wrap">
+											<div><b>___________________</b></div>
+										</div>
 									</div>
 								</li>
 							{{/each}}
-						</ul>
-					</div>
-				{{else}}
-					<p style="text-align: center;">
-						Você ainda não tem registro de entradas no restaurante!
-					</p>
-				{{/if}}
+						{{/if}}
+					</ul>
+				</div>
 			</div>
 		</div>
 	</div>

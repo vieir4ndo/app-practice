@@ -27,31 +27,39 @@
 
 			<div class="menus-list block">
 				{{#if menus}}
-					{{#each menus}}
-						<div class="menu">
-							<div class="block-title">
-								<h3>{{ this.date }}</h3>
+					{{#unless menus.length}}
+						<p style="text-align: center;">
+							Poxa! Ainda não há cardápios cadastrados.
+						</p>
+					{{else}}
+						{{#each menus}}
+							<div class="menu">
+								<div class="block-title">
+									<h3>{{ this.date }}</h3>
+								</div>
+								<div class="block block-strong">
+									<ul>
+										<li>{{ this.salad_1       }}</li>
+										<li>{{ this.salad_2       }}</li>
+										<li>{{ this.salad_3       }}</li>
+										<li>{{ this.grains_1      }}</li>
+										<li>{{ this.grains_2      }}</li>
+										<li>{{ this.grains_3      }}</li>
+										<li>{{ this.side_dish     }}</li>
+										<li>{{ this.mixture       }}</li>
+										<li>{{ this.vegan_mixture }}</li>
+										<li>{{ this.dessert       }}</li>
+									</ul>
+								</div>
 							</div>
-							<div class="block block-strong">
-								<ul>
-									<li>{{ this.salad_1       }}</li>
-									<li>{{ this.salad_2       }}</li>
-									<li>{{ this.salad_3       }}</li>
-									<li>{{ this.grains_1      }}</li>
-									<li>{{ this.grains_2      }}</li>
-									<li>{{ this.grains_3      }}</li>
-									<li>{{ this.side_dish     }}</li>
-									<li>{{ this.mixture       }}</li>
-									<li>{{ this.vegan_mixture }}</li>
-									<li>{{ this.dessert       }}</li>
-								</ul>
-							</div>
-						</div>
-					{{/each}}
+						{{/each}}
+					{{/unless}}
 				{{else}}
-					<p style="text-align: center;">
-						Poxa! Ainda não há cardápios cadastrados.
-					</p>
+					<div class="display-flex justify-content-center">
+						<lottie-player style="width: 55%; text-align: center;" src="static/lottie/cu-id-card-load.json"
+							background="rgba(0, 0, 0, 0)" loop autoplay>
+						</lottie-player>
+					</div>
 				{{/if}}
 			</div>
 		</div>

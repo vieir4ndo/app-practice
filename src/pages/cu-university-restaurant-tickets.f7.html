@@ -31,28 +31,49 @@
 				<div id="tickets">
 					<h2 style="text-align: center;">Histórico de Compra</h2>
 
-					{{#if tickets}}
-						<div class="list simple-list">
-							<ul class="tickets-list">
-								{{#each tickets}}
+					<div class="list simple-list">
+						<ul class="tickets-list">
+							{{#if tickets}}
+								{{#unless tickets.length}}
 									<li class="item-content">
+										<div class="item-inner justify-content-center">
+											<div class="item-title">
+												Você ainda não tem registro de compra de fichas!
+											</div>
+										</div>
+									</li>
+								{{else}}
+									{{#each tickets}}
+										<li class="item-content">
+											<div class="item-inner">
+												<div class="item-title-row">
+													<div class="item-title">
+														<div><b>{{ this.amount }} ficha(s)</b></div>
+													</div>
+												</div>
+												<div class="item-text no-wrap">{{ this.date_time }}</div>
+											</div>
+										</li>
+									{{/each}}
+								{{/unless}}
+							{{else}}
+								{{#each '123'}}
+									<li class="item-content skeleton-text skeleton-effect-blink">
 										<div class="item-inner">
 											<div class="item-title-row">
 												<div class="item-title">
-													<div><b>{{ this.amount }} ficha(s)</b></div>
+													<div><b>________</b></div>
 												</div>
 											</div>
-											<div class="item-text no-wrap">{{ this.date_time }}</div>
+											<div class="item-text no-wrap">
+												<div><b>___________________</b></div>
+											</div>
 										</div>
 									</li>
 								{{/each}}
-							</ul>
-						</div>
-					{{else}}
-						<p style="text-align: center;">
-							Você ainda não tem registro de compra de fichas!
-						</p>
-					{{/if}}
+							{{/if}}
+						</ul>
+					</div>
 				</div>
 			</div>
 		</div>
