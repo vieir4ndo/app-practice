@@ -1,0 +1,146 @@
+<template>
+	<div class="page" data-name="cu-university-restaurant">
+
+		<div class="navbar">
+			<div class="navbar-bg"></div>
+			<div class="navbar-inner sliding">
+				<!-- Link to go back -->
+				<div class="left">
+					<a href="/" class="link back">
+						<i class="icon icon-back"></i>
+						<span class="if-not-md">Voltar</span>
+					</a>
+				</div>
+				<div class="title">Restaurante Universitário</div>
+			</div>
+		</div>
+
+		<div class="page-content">
+			<div data-tabUniversityRestaurant="tickets">
+				<div id="tickets-balance" class="block display-flex align-items-center justify-content-center">
+					<div id="text-balance" >
+						<p>Você tem um saldo de </p>
+						<span>{{ ticketAmount?.ticket_amount }} fichas</span>
+					</div>
+					<div id="lottie-tickets">
+						<lottie-player src="../static/lottie/cu-university-restaurant-tickets.json	" autoplay>
+						</lottie-player>
+					</div>
+				</div>
+
+				<div id="tickets">
+					<h2 style="text-align: center;">Histórico de Compra</h2>
+
+					{{#if tickets}}
+						<div class="list simple-list">
+							<ul class="tickets-list">
+								{{#each tickets}}
+									<li class="item-content">
+										<div class="item-inner">
+											<div class="item-title-row">
+												<div class="item-title">
+													<div><b>{{ this.amount }} ficha(s)</b></div>
+												</div>
+											</div>
+											<div class="item-text no-wrap">{{ this.date_time }}</div>
+										</div>
+									</li>
+								{{/each}}
+							</ul>
+						</div>
+					{{else}}
+						<p style="text-align: center;">
+							Você ainda não tem registro de compra de fichas!
+						</p>
+					{{/if}}
+				</div>
+			</div>
+		</div>
+
+		<div class="fab fab-right-bottom color-orange">
+			<a href="#">
+				<i class="icon f7-icons if-not-md">plus</i>
+				<i class="icon f7-icons if-not-md">xmark</i>
+				<i class="icon material-icons md-only">add</i>
+				<i class="icon material-icons md-only">close</i>
+			</a>
+			<div class="fab-buttons fab-buttons-top">
+				<a class="fab-label-button" href="/cu/university-restaurant/entries/">
+					<span><i class="icon f7-icons">square_list</i></span>
+					<span class="fab-label">Entradas</span>
+				</a>
+
+				<a class="fab-label-button" href="/cu/university-restaurant/menus/">
+					<span><i class="icon material-icons">restaurant_menu</i></span>
+					<span class="fab-label">Cardápios</span>
+				</a>
+			</div>
+		</div>
+	</div>
+</template>
+<style>
+	#tickets-balance #text-balance p {
+		font-size: 1rem;
+		margin: 0;
+	}
+
+	#tickets-balance #text-balance span {
+		font-size: 2rem;
+		font-weight: 800;
+		color: var(--f7-theme-color);
+	}
+
+	#tickets-balance #lottie-tickets lottie-player {
+		height: 130px;
+		max-width: 130px;
+	}
+
+	.tickets-list .item-content:nth-child(even) {
+		background-color: rgb(223, 223, 223);
+	}
+</style>
+<script>
+	export default {
+		data: function () {
+			return {
+				ticketAmount: null,
+				tickets: null
+			}
+		},
+		on: {
+			pageInit: function () {
+				this.loadTicketAmount();
+				this.loadTickets();
+			}
+		},
+		methods: {
+			loadTicketAmount() {
+				let app = this.$app;
+				this.$setState({
+					ticketAmount: null,
+				});
+				app.api.getTicketAmount().then(amount => {
+					this.$setState({
+						ticketAmount: amount,
+					});
+				})
+			},
+			loadTickets() {
+				let app = this.$app;
+				this.$setState({
+					tickets: null,
+				});
+				app.api.getTickets().then(tickets => {
+					tickets.map(ticket => {
+						let formattedDate = new Date(ticket.date_time).toLocaleString('pt-BR');
+						ticket.date_time = formattedDate;
+					})
+
+					this.$setState({
+						tickets: tickets,
+					});
+				})
+			}
+		}
+	}
+</script>

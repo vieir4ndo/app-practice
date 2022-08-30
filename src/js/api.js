@@ -486,4 +486,20 @@ export class Api {
         return await this.cuAPI('reserve/' + id, "DELETE");
     }
 
+    // CU RU methods
+    async getTicketAmount() {
+        return this.getNestedData(await this.cuAPI('ticket/balance'));
+    }
+
+    async getTickets() {
+        return this.getNestedData(await this.cuAPI('ticket'));
+    }
+
+    async getEntries() {
+        return this.getNestedData(await this.cuAPI('entry'));
+    }
+
+    async getMenus() {
+        return this.getNestedData(await this.cuAPI('menu'));
+    }
 };
