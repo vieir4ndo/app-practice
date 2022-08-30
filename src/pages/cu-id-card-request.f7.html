@@ -214,15 +214,12 @@
             submitIdCardRequest: function () {
                 let app = this.$app;
                 let formData = app.form.convertToData('#cu-id-card-request');
-                let photo = '';
 
                 let photoInput = document.querySelector('#user-photo')['files'][0];
                 let reader = new FileReader();
                 reader.onload = async function () {
-                    photo = reader.result.replace("data:", "").replace(/^.+,/, "");
-
                     app.dialog.preloader("Solicitando Carteirinha...");
-                    app.api.requestIdCard(formData, photo).then(data => {
+                    app.api.requestIdCard(formData, reader.result).then(data => {
                         app.dialog.close();
                         app.views.main.router.navigate('/cu/id-card/');
                     }).catch(e => {

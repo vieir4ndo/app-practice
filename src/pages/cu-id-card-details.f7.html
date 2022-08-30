@@ -22,7 +22,7 @@
 					<div class="block display-flex justify-content-center padding">
 						<label for="update-user-photo">
 							<img id="update-user-photo-preview" width="150px"
-									 src="data:image/png;base64, {{idCard.profile_photo}}">
+									 src="{{idCard.profile_photo}}">
 							<input required class="display-none" type="file" id="update-user-photo" name="user-photo"
 										 accept="image/*;capture=camera" @change="changePhotoDisplay()">
 						</label>
@@ -118,8 +118,9 @@
                 let reader = new FileReader();
 
                 reader.onload = async function () {
-                    let photo = reader.result.replace("data:", "").replace(/^.+,/, "");
-                    app.api.requestIdCard(formData, photo).then(data => {
+                    app.dialog.preloader("Solicitando alteração...");
+                    app.api.requestIdCard(formData, reader.result).then(data => {
+                        app.dialog.close();
                         app.views.main.router.navigate('/cu/id-card/');
                     }).catch(() => {
                         app.dialog.alert("Ocorreu um erro inesperado, tente novamente!");

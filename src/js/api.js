@@ -474,6 +474,27 @@ export class Api {
             .then(res => res);
     }
 
+    async updateRoomRequest(data, schedule_id) {
+        let app = this.app;
+        let credentials = await app.storage.getUserCredentials();
+
+        if (!credentials.hasOwnProperty('cu_auth')) {
+            // TODO: Criar resposta de usuário não autenticado
+            return;
+        }
+
+        let request = {
+            new_status: data['request-new_status'],
+        };
+
+        if (data['request-observation'] != '') {
+            request.observation = data['request-observation'];
+        }
+
+        return await this.cuAPI(`request/${schedule_id}`, 'PATCH', request)
+            .then(res => res);
+    }
+
     async getRoomSchedules() {
         return this.getNestedData(await this.cuAPI('reserve'));
     }
@@ -484,6 +505,14 @@ export class Api {
 
     async deleteRoomSchedule(id) {
         return await this.cuAPI('reserve/' + id, "DELETE");
+    }
+  
+    async getRoomRequests() {
+        return this.getNestedData(await this.cuAPI('request'));
+    }
+
+    async getEmptyRooms(begin, end) {
+        return this.getNestedData(await this.cuAPI('reserve/time/' + begin + '/' + end));
     }
 
     // CU RU methods

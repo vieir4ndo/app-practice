@@ -1,5 +1,5 @@
 <template>
-	<div class="page" data-name="cu-room-scheduling-locator">
+	<div class="page" data-name="cu-room-scheduling-lessee">
 
 		<div class="navbar">
 			<div class="navbar-bg"></div>
@@ -21,7 +21,7 @@
 					<h2 class="no-margin">Agendamentos</h2>
 				</div>
 				<div>
-					<lottie-player src="../static/lottie/cu-room-scheduling-locator.json" loop autoplay>
+					<lottie-player src="../static/lottie/cu-room-scheduling-lessee.json" loop autoplay>
 					</lottie-player>
 				</div>
 			</div>
@@ -96,7 +96,7 @@
 			</div>
 		</div>
 
-		<div class="popup display-flex flex-direction-column-reverse" id="cu-room-scheduling-locator-popup"
+		<div class="popup display-flex flex-direction-column-reverse" id="cu-room-scheduling-lessee-popup"
 				 style="background: none;">
 			<div class="block bg-white padding no-margin display-flex flex-direction-column justify-content-space-between"
 					 style="height: 60vh; background-color: white;">
@@ -109,16 +109,24 @@
 					<div class="text-align-right">Início da Reserva: <b>{{schedule.begin}}</b></div>
 					<div class="text-align-right">Fim da Reserva: <b>{{schedule.end}}</b></div>
 					{{#if schedule.ccr}}
-					<div class="margin-top padding-vertical">CCR vinculado: <b>{{schedule.ccr}}</b></div>
+					<div class="margin-top padding-top">CCR vinculado: <b>{{schedule.ccr}}</b></div>
 					{{/if}}
 					{{#if schedule.description}}
-					<div>Observações:</div>
+					<div class="margin-top padding-top">Observações:</div>
 					<textarea rows="4" style="width: 100%;">{{schedule.description}}</textarea>
 					{{/if}}
 				</div>
-				<button class="align-self-flex-end button button-fill color-red margin-top" @click="deleteRoomSchedule({{schedule.id}})">
+				{{#if schedule.status}}
+				<div class="block no-margin">
+					<div>Observações da Aprovação:</div>
+					<textarea rows="4" style="width: 100%;">{{schedule.observation}}</textarea>
+				</div>
+				{{else}}
+				<button class="align-self-flex-end button button-fill color-red margin-top"
+								@click="deleteRoomSchedule({{schedule.id}})">
 					Cancelar Agendamento
 				</button>
+				{{/if}}
 			</div>
 			{{else}}
 			<div class="block no-margin skeleton-text skeleton-effect-blink">
@@ -193,7 +201,7 @@
                 let popup = app.popup.create({
                     swipeToClose: 'to-bottom',
                     closeByBackdropClick: true,
-                    el: app.$$('#cu-room-scheduling-locator-popup'),
+                    el: app.$$('#cu-room-scheduling-lessee-popup'),
                     on: {
                         closed: this.clearReserveFields
                     }
@@ -211,13 +219,13 @@
                     });
                 })
             },
-						deleteRoomSchedule(id) {
+            deleteRoomSchedule(id) {
                 let app = this.$app;
 
                 app.dialog.preloader("Cancelando...");
                 app.api.deleteRoomSchedule(id).then(() => {
                     app.dialog.close();
-                    app.popup.close(app.$$('#cu-room-scheduling-locator-popup'));
+                    app.popup.close(app.$$('#cu-room-scheduling-lessee-popup'));
                     this.loadRoomSchedules();
                 }).catch(e => {
                     app.dialog.close();
